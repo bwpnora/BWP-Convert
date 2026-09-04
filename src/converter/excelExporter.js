@@ -50,6 +50,17 @@ async function exportToExcel({
     row.getCell(17).value = '1 - Du lịch';
     row.getCell(18).value = '';
     row.getCell(19).value = '';
+
+    // Remove italics from guest data row cells (template column defaults to italic: true)
+    for (let c = 1; c <= 19; c++) {
+      const cell = row.getCell(c);
+      cell.font = {
+        name: 'Calibri',
+        size: 11,
+        italic: false
+      };
+    }
+
     row.commit();
   });
 
@@ -60,14 +71,14 @@ async function exportToExcel({
   await wbFg.xlsx.readFile(foreignTemplatePath);
   const wsFg = wbFg.getWorksheet('KBTT');
 
-  while (wsFg.rowCount >= 4) {
-    wsFg.spliceRows(4, 1);
+  while (wsFg.rowCount >= 3) {
+    wsFg.spliceRows(3, 1);
   }
 
   foreignGuests.forEach((g, idx) => {
-    const rowNum = 4 + idx;
+    const rowNum = 3 + idx;
     const row = wsFg.getRow(rowNum);
-    row.getCell(1).value = '';
+    row.getCell(1).value = idx + 1;
     row.getCell(2).value = g.name || '';
     row.getCell(3).value = g.dob || '';
     row.getCell(4).value = 'D - Ngày';
@@ -79,8 +90,34 @@ async function exportToExcel({
     row.getCell(10).value = g.departure || '';
     row.getCell(11).value = g.departure || '';
     row.getCell(12).value = g.visaExp || g.departure || '';
+
+    for (let c = 1; c <= 12; c++) {
+      const cell = row.getCell(c);
+      cell.font = {
+        name: 'Times New Roman',
+        size: 11,
+        italic: false
+      };
+    }
+
     row.commit();
   });
+
+  // Fix Table1 AutoFilter and range so Excel opens cleanly without repair dialog
+  const lastFgRow = Math.max(3, 2 + foreignGuests.length);
+  const fgTableRef = `A2:L${lastFgRow}`;
+  const tables = wsFg.getTables();
+  for (const t of tables) {
+    t.table.tableRef = fgTableRef;
+    t.table.autoFilterRef = fgTableRef;
+    t.table.headerRow = true;
+    t.table.totalsRow = false;
+    if (t.table.columns) {
+      t.table.columns.forEach(c => {
+        c.filterButton = true;
+      });
+    }
+  }
 
   await wbFg.xlsx.writeFile(foreignFilePath);
 

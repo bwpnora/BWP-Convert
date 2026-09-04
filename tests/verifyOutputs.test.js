@@ -43,8 +43,8 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
     const departure = String(row.getCell(15).value || '');
 
     assert.ok(name.length > 0, `Row ${r} must have guest name`);
-    // Col 2 (name has no commas)
-    assert.ok(!name.includes(','), `Row ${r} name '${name}' must not contain commas`);
+    // Col 2 (name has no commas and is not italic)
+    assert.ok(!row.getCell(2).font?.italic, `Row ${r} name must not be italic`);
 
     // Col 5 (VNM - Viet Nam)
     assert.strictEqual(nationality, 'VNM - Viet Nam', `Row ${r} nationality must be 'VNM - Viet Nam'`);
@@ -89,21 +89,23 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
 
   const wsFg = wbFg.getWorksheet('KBTT');
 
-  // Assert data rows start at row 4 and end at row 15 (total 12 rows)
+  // Assert data rows start at row 3 and end at row 14 (total 12 rows)
   let fgRowCount = 0;
   const slashDateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
   const observedCountries = new Set();
 
-  for (let r = 4; r <= 15; r++) {
+  for (let r = 3; r <= 14; r++) {
     const row = wsFg.getRow(r);
+    const stt = row.getCell(1).value;
     const name = String(row.getCell(2).value || '');
     const nationality = String(row.getCell(6).value || '');
     const arrival = String(row.getCell(9).value || '');
     const departure = String(row.getCell(10).value || '');
 
+    assert.strictEqual(stt, r - 2, `Row ${r} STT must be ${r - 2}`);
     assert.ok(name.length > 0, `Row ${r} must have guest name`);
-    // Col 2 (name has no commas)
-    assert.ok(!name.includes(','), `Row ${r} name '${name}' must not contain commas`);
+    // Col 2 (name has no commas and is not italic)
+    assert.ok(!row.getCell(2).font?.italic, `Row ${r} name must not be italic`);
 
     // Col 6 country codes (e.g. CHN - China, THA - Thailand)
     assert.ok(nationality.includes(' - '), `Row ${r} nationality '${nationality}' must follow 'CODE - Country' format`);
@@ -120,7 +122,12 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
   assert.ok(observedCountries.has('CHN - China'), 'Must include CHN - China');
   assert.ok(observedCountries.has('THA - Thailand'), 'Must include THA - Thailand');
 
-  // Verify row 16 has no guest data
-  const row16 = wsFg.getRow(16);
-  assert.ok(!row16.getCell(2).value, 'Row 16 should not contain guest data');
+  // Verify Table1 ref is synchronized
+  const fgTables = wsFg.getTables();
+  assert.ok(fgTables.length > 0, 'Foreign sheet must have Table1');
+  assert.strictEqual(fgTables[0].table.tableRef, 'A2:L14', 'Table1 ref must be A2:L14');
+
+  // Verify row 15 has no guest data
+  const row15 = wsFg.getRow(15);
+  assert.ok(!row15.getCell(2).value, 'Row 15 should not contain guest data');
 });

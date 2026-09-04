@@ -61,6 +61,7 @@ test('exportToExcel creates both files preserving template sheets and correct ro
   assert.strictEqual(wsVn.getCell('B5').value, 'NGUYEN VAN A');
   assert.strictEqual(wsVn.getCell('E5').value, 'VNM - Viet Nam');
   assert.strictEqual(wsVn.getCell('K5').value, '701 - TP. Hồ Chí Minh');
+  assert.ok(!wsVn.getCell('B5').font?.italic, 'Guest name must not be italic');
 
   const wbFg = new ExcelJS.Workbook();
   await wbFg.xlsx.readFile(result.foreignFilePath);
@@ -68,6 +69,8 @@ test('exportToExcel creates both files preserving template sheets and correct ro
   assert.ok(wbFg.getWorksheet('Lookup'), 'Lookup sheet must be preserved');
 
   const wsFg = wbFg.getWorksheet('KBTT');
-  assert.strictEqual(wsFg.getCell('B4').value, 'JOHN DOE');
-  assert.strictEqual(wsFg.getCell('F4').value, 'USA - United States of America');
+  assert.strictEqual(wsFg.getCell('A3').value, 1);
+  assert.strictEqual(wsFg.getCell('B3').value, 'JOHN DOE');
+  assert.strictEqual(wsFg.getCell('F3').value, 'USA - United States of America');
+  assert.ok(!wsFg.getCell('B3').font?.italic, 'Foreign guest name must not be italic');
 });
