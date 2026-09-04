@@ -4,11 +4,20 @@ const { parsePoliceReport } = require('./xmlParser');
 const { initAddressMatcher } = require('./addressMatcher');
 const { exportToExcel } = require('./excelExporter');
 
+function resolveTemplatePath(filename, customPath) {
+  if (customPath) return path.resolve(customPath);
+  if (process.resourcesPath) {
+    const packagedPath = path.join(process.resourcesPath, 'brief', filename);
+    if (fs.existsSync(packagedPath)) return packagedPath;
+  }
+  return path.resolve(__dirname, '../../brief', filename);
+}
+
 async function runConversion(xmlPath, options = {}) {
   const resolvedXmlPath = path.resolve(xmlPath);
   const xmlContent = fs.readFileSync(resolvedXmlPath, 'utf-8');
-  const vnTemplatePath = options.vnTemplatePath || path.resolve(__dirname, '../../brief/tblt_vn_import.xlsx');
-  const foreignTemplatePath = options.foreignTemplatePath || path.resolve(__dirname, '../../brief/dklt nc ngoài.xlsx');
+  const vnTemplatePath = resolveTemplatePath('tblt_vn_import.xlsx', options.vnTemplatePath);
+  const foreignTemplatePath = resolveTemplatePath('dklt nc ngoài.xlsx', options.foreignTemplatePath);
   const outputDir = options.outputDir ? path.resolve(options.outputDir) : path.dirname(resolvedXmlPath);
 
   const { vnGuests, foreignGuests } = parsePoliceReport(xmlContent);
@@ -39,4 +48,4 @@ async function runConversion(xmlPath, options = {}) {
   };
 }
 
-module.exports = { runConversion };
+module.exports = { runConversion, resolveTemplatePath };
