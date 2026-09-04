@@ -34,5 +34,10 @@
         "filter": ["*.xlsx"]
       }
     ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ]
   }
 }
