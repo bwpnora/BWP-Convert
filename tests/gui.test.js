@@ -44,7 +44,7 @@ test('Electron GUI source files exist and adhere to structure requirements', () 
   assert.ok(htmlContent.includes('id="reset-btn"'), 'HTML must have reset/convert another file button');
   assert.ok(htmlContent.includes('tblt_vn_import'), 'HTML must reference tblt_vn_import template');
   assert.ok(htmlContent.includes('dklt_nc_ngoai'), 'HTML must reference dklt_nc_ngoai template');
-  assert.ok(htmlContent.includes('Copyright @ 2026 - Website by IT Leon'), 'HTML must have copyright footer');
+  assert.ok(htmlContent.includes('Copyright @ 2026 - Code by IT Leon') || htmlContent.includes('Copyright @ 2026 - Website by IT Leon'), 'HTML must have copyright footer');
   assert.ok(htmlContent.includes('BWP Convert'), 'HTML must have BWP Convert title');
   assert.ok(htmlContent.includes('logo.png'), 'HTML must reference logo.png');
   assert.ok(fs.existsSync(path.resolve('src/images/logo.png')), 'src/images/logo.png must exist');
