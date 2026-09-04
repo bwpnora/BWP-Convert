@@ -1,5 +1,8 @@
 # BWP Convert 🏨🇻🇳
 
+[![Release](https://img.shields.io/github/v/release/nguyen-nora/Opera-PMC-Converter?label=B%E1%BA%A3n%20m%E1%BB%9Bi%20nh%E1%BA%A5t&color=2ea44f)](https://github.com/nguyen-nora/Opera-PMC-Converter/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 **BWP Convert** là phần mềm Desktop chuyên dụng trên Windows giúp tự động chuyển đổi file XML báo cáo lưu trú xuất từ hệ thống quản trị khách sạn **Opera PMS** (`police_report2_*.xml`) sang 2 biểu mẫu Excel khai báo lưu trú chuẩn theo quy định của cơ quan Công an:
 
 1. **`tblt_vn_import_*.xlsx`**: Biểu mẫu Cổng Dịch vụ công C06 Bộ Công an (dành cho khách Việt Nam).
@@ -24,7 +27,20 @@
 
 ---
 
-## 🚀 Cài Đặt & Khởi Chạy
+## 💾 Tải Về & Cài Đặt Cho Các Máy Tính Khác (Không Cần Quyền Admin)
+
+Dành cho nhân viên lễ tân, kế toán hoặc cài đặt trên các máy trạm khách sạn:
+
+1. **Tải bộ cài đặt**: Truy cập trang [**GitHub Releases**](https://github.com/nguyen-nora/Opera-PMC-Converter/releases) và tải phiên bản mới nhất (`BWP-Convert-Setup-*.exe`).
+2. **Cài đặt cực kỳ đơn giản**:
+   - Nhấp đúp chuột vào file `BWP-Convert-Setup-*.exe` vừa tải về.
+   - Trình cài đặt tự động cài vào thư mục người dùng (`AppData`), **hoàn toàn không yêu cầu quyền Quản trị viên (Administrator)**.
+   - Biểu tượng ứng dụng **BWP Convert** sẽ tự động được tạo ngoài màn hình Desktop và trong Start Menu.
+3. **Sử dụng ngay**: Mở ứng dụng từ Desktop, kéo thả file XML báo cáo lưu trú từ Opera PMS để chuyển đổi sang Excel ngay lập tức.
+
+---
+
+## 🛠️ Dành Cho Nhà Phát Triển (Cài Đặt Từ Mã Nguồn)
 
 ### Yêu cầu hệ thống
 - **Node.js**: Phiên bản 18+ trở lên.
@@ -63,12 +79,27 @@ pnpm run dist
 ```
 File cài đặt NSIS (`.exe`) sẽ được tạo trong thư mục `dist/`.
 
+### 6. Tạo bản phát hành tự động (GitHub Release)
+Để phát hành phiên bản mới cho các máy trạm:
+```powershell
+# 1. Cập nhật version trong package.json (ví dụ: 1.0.1)
+# 2. Commit và gắn git tag:
+git add package.json
+git commit -m "chore: bump version to v1.0.1"
+git tag v1.0.1
+git push origin master --tags
+```
+Hệ thống GitHub Actions sẽ tự động kiểm thử toàn bộ, đóng gói file `.exe` NSIS và đăng tải lên trang Releases trong vòng 3-5 phút.
+
 ---
 
 ## 📁 Cấu Trúc Dự Án
 
 ```text
 nora-convert/
+├── .github/                             # GitHub Actions workflows
+│   └── workflows/
+│       └── release.yml                  # Pipeline tự động test, đóng gói & tạo Release
 ├── brief/                               # File mẫu Opera PMS XML & Excel biểu mẫu gốc
 │   ├── police_report2_75766981.XML      # File XML mẫu xuất từ Opera PMS
 │   ├── tblt_vn_import.xlsx              # Biểu mẫu C06 (Khách Việt Nam)
