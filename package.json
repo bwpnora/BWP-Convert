@@ -1,5 +1,5 @@
 {
-  "name": "nora-convert",
+  "name": "bwp-convert",
   "version": "1.0.0",
   "description": "Opera PMS XML to Excel Converter for Vietnamese and Foreign Police Stay Reports",
   "main": "src/main/main.js",
@@ -19,13 +19,14 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.noraconvert.app",
-    "productName": "nora-convert",
+    "appId": "com.bwpconvert.app",
+    "productName": "BWP Convert",
     "directories": {
       "output": "dist"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "src/images/logo.png"
     },
     "extraResources": [
       {

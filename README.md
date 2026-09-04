@@ -1,6 +1,6 @@
-# nora-convert 🏨🇻🇳
+# BWP Convert 🏨🇻🇳
 
-**nora-convert** là phần mềm Desktop chuyên dụng trên Windows giúp tự động chuyển đổi file XML báo cáo lưu trú xuất từ hệ thống quản trị khách sạn **Opera PMS** (`police_report2_*.xml`) sang 2 biểu mẫu Excel khai báo lưu trú chuẩn theo quy định của cơ quan Công an:
+**BWP Convert** là phần mềm Desktop chuyên dụng trên Windows giúp tự động chuyển đổi file XML báo cáo lưu trú xuất từ hệ thống quản trị khách sạn **Opera PMS** (`police_report2_*.xml`) sang 2 biểu mẫu Excel khai báo lưu trú chuẩn theo quy định của cơ quan Công an:
 
 1. **`tblt_vn_import_*.xlsx`**: Biểu mẫu Cổng Dịch vụ công C06 Bộ Công an (dành cho khách Việt Nam).
 2. **`dklt_nc_ngoai_*.xlsx`**: Biểu mẫu Cục Quản lý xuất nhập cảnh (dành cho khách Nước ngoài).

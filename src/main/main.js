@@ -6,12 +6,14 @@ const { runConversion } = require('../converter/index');
 let mainWindow = null;
 
 function createWindow() {
+  const iconPath = path.join(__dirname, '../images/logo.png');
   mainWindow = new BrowserWindow({
-    title: 'nora-convert - Chuyển đổi báo cáo lưu trú Opera PMS',
+    title: 'BWP Convert - Chuyển đổi báo cáo lưu trú Opera PMS',
     width: 840,
     height: 680,
     minWidth: 700,
     minHeight: 550,
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {

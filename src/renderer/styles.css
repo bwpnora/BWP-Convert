@@ -70,6 +70,15 @@ body {
   gap: 14px;
 }
 
+.app-logo {
+  height: 52px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+}
+
 .logo-icon {
   display: flex;
   align-items: center;
