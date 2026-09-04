@@ -26,13 +26,25 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "src/images/logo.png"
+      "icon": "src/images/logo.png",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "BWP Convert",
+      "uninstallDisplayName": "BWP Convert - Gỡ cài đặt"
     },
     "extraResources": [
       {
         "from": "brief",
         "to": "brief",
-        "filter": ["*.xlsx"]
+        "filter": [
+          "*.xlsx"
+        ]
       }
     ]
   },
