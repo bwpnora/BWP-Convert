@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nora-convert - Chuyển đổi báo cáo lưu trú Opera PMS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title">nora-convert</h1>
+          <p class="app-subtitle">Phần mềm chuyển đổi báo cáo lưu trú Opera PMS sang biểu mẫu Công an C06 &amp; Quản lý xuất nhập cảnh</p>
+        </div>
+      </div>
+      <div class="version-badge">v1.0.0</div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Section 1: Dropzone (Ready State) -->
+      <section id="dropzone-section" class="view-section">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Kéo thả hoặc nhấn để chọn file XML">
+          <div class="dropzone-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <h2 class="dropzone-title">Kéo thả file XML báo cáo lưu trú vào đây</h2>
+          <p class="dropzone-desc">Hỗ trợ file báo cáo mẫu <code>police_report2_*.xml</code> từ hệ thống Opera PMS</p>
+          <div class="dropzone-divider"><span>hoặc</span></div>
+          <button type="button" id="browse-btn" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Chọn file từ máy tính
+          </button>
+        </div>
+
+        <div class="instructions-card">
+          <div class="instruction-item">
+            <div class="instruction-num">1</div>
+            <div>
+              <strong>Biểu mẫu C06 (Khách Việt Nam):</strong> Tự động lọc khách Việt Nam, chuẩn hóa mã danh mục, mã tỉnh/thành phố và xuất file <code>tblt_vn_import_*.xlsx</code>.
+            </div>
+          </div>
+          <div class="instruction-item">
+            <div class="instruction-num">2</div>
+            <div>
+              <strong>Khai báo tạm trú người nước ngoài:</strong> Tự động lọc khách quốc tế, chuẩn hóa quốc tịch 3 ký tự và ngày thị thực sang file <code>dklt_nc_ngoai_*.xlsx</code>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Loading / Processing State -->
+      <section id="loading-section" class="view-section hidden">
+        <div class="card loading-card">
+          <div class="spinner"></div>
+          <h3 id="loading-title" class="loading-title">Đang xử lý dữ liệu...</h3>
+          <p id="loading-file-name" class="loading-filename"></p>
+          <div class="progress-bar-container">
+            <div class="progress-bar-indeterminate"></div>
+          </div>
+          <p class="loading-hint">Đang phân tích XML, đối soát danh mục tỉnh thành và tạo biểu mẫu Excel...</p>
+        </div>
+      </section>
+
+      <!-- Section 3: Results State -->
+      <section id="results-section" class="view-section hidden">
+        <div class="card results-card">
+          <div class="results-header">
+            <div class="success-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h2 class="results-title">Chuyển đổi hoàn tất thành công!</h2>
+              <p id="results-source" class="results-source"></p>
+            </div>
+          </div>
+
+          <!-- Badges / Stats -->
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Tổng lượt khách</span>
+              <span id="stat-total" class="stat-value">0</span>
+              <span class="stat-sub">Trong báo cáo PMS</span>
+            </div>
+            <div class="stat-box stat-vn">
+              <span class="stat-label">Khách Việt Nam (C06)</span>
+              <span id="stat-vn" class="stat-value">0</span>
+              <span class="stat-sub">Mẫu tblt_vn_import</span>
+            </div>
+            <div class="stat-box stat-foreign">
+              <span class="stat-label">Khách Nước Ngoài (QLXNC)</span>
+              <span id="stat-foreign" class="stat-value">0</span>
+              <span class="stat-sub">Mẫu dklt nc ngoài</span>
+            </div>
+          </div>
+
+          <!-- Output Files -->
+          <div class="output-files-group">
+            <h3 class="output-files-title">Các file Excel đã tạo:</h3>
+            <div class="file-item">
+              <div class="file-icon xlsx-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <div class="file-info">
+                <div class="file-tag vn-tag">C06 - Dịch vụ công</div>
+                <div id="vn-file-name" class="file-name">tblt_vn_import_*.xlsx</div>
+                <div id="vn-file-path" class="file-path"></div>
+              </div>
+              <button type="button" id="open-vn-btn" class="btn btn-sm btn-outline">Mở file</button>
+            </div>
+
+            <div class="file-item">
+              <div class="file-icon xlsx-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <div class="file-info">
+                <div class="file-tag foreign-tag">QLXNC - Xuất nhập cảnh</div>
+                <div id="foreign-file-name" class="file-name">dklt_nc_ngoai_*.xlsx</div>
+                <div id="foreign-file-path" class="file-path"></div>
+              </div>
+              <button type="button" id="open-foreign-btn" class="btn btn-sm btn-outline">Mở file</button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="results-actions">
+            <button type="button" id="open-folder-btn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Mở thư mục chứa file
+            </button>
+            <button type="button" id="reset-btn" class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Chuyển đổi file khác
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Error State -->
+      <section id="error-section" class="view-section hidden">
+        <div class="card error-card">
+          <div class="error-header">
+            <div class="error-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 class="error-title">Chuyển đổi thất bại</h2>
+              <p class="error-subtitle">Đã xảy ra lỗi khi đọc hoặc phân tích dữ liệu XML</p>
+            </div>
+          </div>
+          <div id="error-message" class="error-details"></div>
+          <div class="error-actions">
+            <button type="button" id="error-retry-btn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Thử lại với file khác
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>nora-convert • Hỗ trợ Opera PMS &amp; Khai báo lưu trú</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
