@@ -1,0 +1,31 @@
+{
+  "name": "nora-convert",
+  "version": "1.0.0",
+  "description": "Opera PMS XML to Excel Converter for Vietnamese and Foreign Police Stay Reports",
+  "main": "src/main/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/**/*.test.js",
+    "convert": "node src/cli.js",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "fast-xml-parser": "^4.5.3"
+  },
+  "devDependencies": {
+    "electron": "^34.3.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.noraconvert.app",
+    "productName": "nora-convert",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
