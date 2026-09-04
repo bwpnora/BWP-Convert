@@ -136,8 +136,8 @@ test('parsePoliceReport extracts all 45 guests and categorizes VN vs Foreign', (
   const result = parsePoliceReport(xmlData);
 
   assert.strictEqual(result.total, 45, 'Total guests should be 45');
-  assert.strictEqual(result.vnGuests.length, 32, 'Total VN guests should be 32');
-  assert.strictEqual(result.foreignGuests.length, 13, 'Total Foreign guests should be 13');
+  assert.strictEqual(result.vnGuests.length, 33, 'Total VN guests should be 33');
+  assert.strictEqual(result.foreignGuests.length, 12, 'Total Foreign guests should be 12');
 
   // Verify first foreign guest: YANG WEIBAO
   const firstForeign = result.foreignGuests.find(g => g.name.includes('YANG WEIBAO'));
@@ -325,7 +325,7 @@ module.exports = {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `node --test tests/xmlParser.test.js`
-Expected: PASS (All 45 guests extracted, 32 VN and 13 Foreign).
+Expected: PASS (All 45 guests extracted, 33 VN and 12 Foreign).
 
 - [ ] **Step 5: Commit**
 
@@ -694,8 +694,8 @@ test('runConversion processes brief sample XML and returns output file details',
     outputDir: 'dist/pipeline-output'
   });
 
-  assert.strictEqual(result.vnCount, 32);
-  assert.strictEqual(result.foreignCount, 13);
+  assert.strictEqual(result.vnCount, 33);
+  assert.strictEqual(result.foreignCount, 12);
   assert.ok(fs.existsSync(result.vnFilePath));
   assert.ok(fs.existsSync(result.foreignFilePath));
 });

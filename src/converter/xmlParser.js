@@ -2,16 +2,20 @@
 
 const COUNTRY_LOOKUP_MAP = {
   'CN': 'CHN - China',
+  'CHN': 'CHN - China',
   'CHINA': 'CHN - China',
   'KR': 'KOR - Korea (South)',
+  'KOR': 'KOR - Korea (South)',
   'KOREA (SOUTH)': 'KOR - Korea (South)',
   'KOREA, REPUBLIC OF': 'KOR - Korea (South)',
   'TH': 'THA - Thailand',
+  'THA': 'THA - Thailand',
   'THAILAND': 'THA - Thailand',
   'US': 'USA - United States of America',
   'USA': 'USA - United States of America',
   'UNITED STATES': 'USA - United States of America',
   'JP': 'JPN - Japan',
+  'JPN': 'JPN - Japan',
   'JAPAN': 'JPN - Japan',
   'VN': 'VNM - Viet Nam',
   'VNM': 'VNM - Viet Nam',
@@ -24,27 +28,21 @@ function normalizeName(nameFormula, first, last) {
   if (!raw && (first || last)) {
     raw = `${first || ''} ${last || ''}`.trim();
   }
-  if (raw.includes(',')) {
-    const parts = raw.split(',').map(p => p.trim());
-    if (parts.length === 2) {
-      raw = `${parts[1]} ${parts[0]}`;
-    }
-  }
   return raw.replace(/,/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
 }
 
-function normalizeDate(rawDate, defaultYearPrefix = '20') {
+function normalizeDate(rawDate, defaultYearPrefix = '20', separator = '/') {
   if (!rawDate) return '';
   const str = String(rawDate).trim();
   const match = str.match(/^(\d{2})[-/](\d{2})[-/](\d{2})$/);
   if (match) {
     const [, d, m, y] = match;
-    return `${d}/${m}/${defaultYearPrefix}${y}`;
+    return `${d}${separator}${m}${separator}${defaultYearPrefix}${y}`;
   }
   const match4 = str.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
   if (match4) {
     const [, d, m, y] = match4;
-    return `${d}/${m}/${y}`;
+    return `${d}${separator}${m}${separator}${y}`;
   }
   return str;
 }
@@ -96,28 +94,28 @@ function parsePoliceReport(xmlContent) {
       const idNumber = (primaryId.ID_NUMBER || '').trim();
 
       const fullName = normalizeName(g.NAME_FORMULA, g.FIRST, g.LAST);
-      const arrival = normalizeDate(g.TO_CHAR_RGV_TRUNC_ARRIVAL_PMS_);
-      const departure = normalizeDate(g.TO_CHAR_RGV_TRUNC_DEPARTURE_PM);
-      const dob = normalizeDate(g.BIRTH_DATE);
+      const dob = normalizeDate(g.BIRTH_DATE, '20', '/');
       const gender = normalizeGender(g.GENDER);
       const room = String(g.ROOM || '').trim();
       const address = [g.ADDRESS1, g.CITY].filter(Boolean).map(s => String(s).trim()).join(', ');
       const visaNumber = (g.VISA_NUMBER || '').trim();
-      const visaExp = normalizeDate(g.VISA_EXPIRATION_DATE);
+      const visaExp = normalizeDate(g.VISA_EXPIRATION_DATE, '20', '/');
       const status = (g.RESV_STATUS || '').trim();
 
       const isVNExplicit = ['VN', 'VNM'].includes(natCode.toUpperCase()) ||
                            ['VN', 'VNM'].includes(guestCountry.toUpperCase()) ||
                            countryDesc.toLowerCase().includes('vietnam');
 
-      const isUnknown = natCode.toUpperCase() === 'UNKNOWN' || !natCode;
-      const isVnFallback = isUnknown && idType === 'ID';
+      const isForeignExplicit = (natCode && !['VN', 'VNM', 'UNKNOWN'].includes(natCode.toUpperCase())) ||
+                                (guestCountry && !['VN', 'VNM'].includes(guestCountry.toUpperCase())) ||
+                                (countryDesc && !['vietnam'].includes(countryDesc.toLowerCase()));
+
+      const isUnknown = (natCode.toUpperCase() === 'UNKNOWN' || !natCode) && !isForeignExplicit;
+      const isVnFallback = isUnknown && (idType === 'ID' || !idType || qIds.length === 0);
 
       const guestObj = {
         name: fullName,
         room,
-        arrival,
-        departure,
         dob,
         gender,
         idType,
@@ -129,10 +127,14 @@ function parsePoliceReport(xmlContent) {
       };
 
       if (isVNExplicit || isVnFallback) {
+        guestObj.arrival = normalizeDate(g.TO_CHAR_RGV_TRUNC_ARRIVAL_PMS_, '20', '-');
+        guestObj.departure = normalizeDate(g.TO_CHAR_RGV_TRUNC_DEPARTURE_PM, '20', '-');
         guestObj.nationalityCode = 'VNM - Viet Nam';
         guestObj.idTypeDisplay = idType === 'PASSPORT' ? '4 - Hộ chiếu' : '8 - Thẻ Căn Cước';
         vnGuests.push(guestObj);
       } else {
+        guestObj.arrival = normalizeDate(g.TO_CHAR_RGV_TRUNC_ARRIVAL_PMS_, '20', '/');
+        guestObj.departure = normalizeDate(g.TO_CHAR_RGV_TRUNC_DEPARTURE_PM, '20', '/');
         const rawCountry = natCode && natCode.toUpperCase() !== 'UNKNOWN' ? natCode : (guestCountry || countryDesc || natCode);
         guestObj.nationalityCode = normalizeCountry(rawCountry);
         foreignGuests.push(guestObj);
@@ -152,5 +154,6 @@ module.exports = {
   normalizeName,
   normalizeDate,
   normalizeGender,
-  normalizeCountry
+  normalizeCountry,
+  COUNTRY_LOOKUP_MAP
 };
