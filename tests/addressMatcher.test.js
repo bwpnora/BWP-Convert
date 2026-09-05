@@ -44,5 +44,31 @@ test('extractDetailedAddress handles standalone extraction with diacritics and r
     extractDetailedAddress('Ngõ 3/6A, Xã Gia Lâm, TP. Hà Nội', 'tp ha noi', 'Xã Gia Lâm'),
     'Ngõ 3/6A'
   );
+  // Compound district without leaving dangling number
+  const rCompound = extractDetailedAddress('123 Nguyễn Huệ, Bến Nghé, Quận 1, TP. Hồ Chí Minh', 'tp ho chi minh', '');
+  assert.ok(!rCompound.includes(', 1'));
+  assert.ok(!rCompound.endsWith('1'));
+
+  // Preserves single-letter lot / block
+  const rLoH = extractDetailedAddress('123 Lô H, Phường Tân Phú, TP.HCM', 'tphcm', 'Phường Tân Phú');
+  assert.strictEqual(rLoH, '123 Lô H');
+});
+
+test('addressMatcher cleanly strips administrative district numbers and preserves single-letter lots/blocks', async () => {
+  const matcher = await initAddressMatcher('brief/tblt_vn_import.xlsx');
+
+  // Finding 1: 123 Nguyễn Huệ, Bến Nghé, Quận 1, TP. Hồ Chí Minh does not leave dangling ", 1"
+  const r1 = matcher.matchAddress('123 Nguyễn Huệ, Bến Nghé, Quận 1, TP. Hồ Chí Minh');
+  assert.strictEqual(r1.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(!r1.addressDetail.includes(', 1'), 'Must not leave dangling district number ", 1"');
+  assert.ok(!r1.addressDetail.endsWith('1'), 'Must not end with dangling district digit');
+  assert.ok(!r1.addressDetail.toLowerCase().includes('quận 1'), 'Must strip Quận 1');
+  assert.ok(r1.addressDetail.includes('123 Nguyễn Huệ'), 'Preserves street number and name');
+
+  // Finding 2: 123 Lô H, Phường Tân Phú, TP.HCM preserves Lô H
+  const r2 = matcher.matchAddress('123 Lô H, Phường Tân Phú, TP.HCM');
+  assert.strictEqual(r2.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(r2.addressDetail.includes('Lô H'), 'Must preserve single-letter block/lot "Lô H"');
+  assert.strictEqual(r2.addressDetail, '123 Lô H');
 });
 

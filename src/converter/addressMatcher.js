@@ -58,17 +58,22 @@ function extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen) {
     detail = removeFragment(detail, baseWard);
   }
 
-  // Also clean common residual keywords (TP, Tỉnh, Huyện, Quận, Việt Nam)
+  // 1. Compound administrative district/city patterns (e.g. "Quận 1", "Q.1", "Q. 1", "Q1", "Huyện Củ Chi", "H. Củ Chi")
+  // These handle numbers or names together so they don't leave dangling numbers or fragments.
+  detail = detail
+    .replace(/(^|[-,\/–])\s*(quận|huyện|thị xã|tx\.|thành phố|tp\.|tỉnh)\s+(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+)*)(?=[-,\s/–.]|$)/gui, '$1')
+    .replace(/(^|[-,\/–])\s*(q\.|h\.|tx\.|tp\.)\s*(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+)*)(?=[-,\s/–.]|$)/gui, '$1')
+    .replace(/(^|[-,\s\/–])\s*(quận|huyện|q\.|q)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1')
+    .replace(/(^|[-,\s\/–])\s*(h\.)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1');
+
+  // 2. Clean dangling residual administrative keywords at boundaries
+  // Single-letter abbreviations require a dot (q., h.) or digit boundary; bare 'q' or 'h' are never stripped.
   for (let i = 0; i < 2; i++) {
     detail = detail
-      .replace(/(^|[-,\s/–])(thành phố|tỉnh|quận|huyện|thị xã|thị trấn|tp\.|tp|q\.|q|h\.|h|tx\.|tx|tt\.|tt|việt nam|viet nam|vn)\s*(?=[-,\s/–.]|$)/gi, '$1')
-      .replace(/(^|[-,\s])(thành phố|tỉnh|quận|huyện|thị xã|tp\.|tp|q\.|q|h\.|h)\s*[\w\d\s]*/gi, (match) => {
-        // If it looks like a dangling administrative label at the end, strip it
-        if (/^(,\s*)?(thành phố|tỉnh|quận|huyện|thị xã|tp|q|h)\s+/i.test(match.trim())) {
-          return ' ';
-        }
-        return match;
-      })
+      .replace(
+        /(^|[-,\s/–])(thành phố|tỉnh|quận|huyện|thị xã|thị trấn|tp\.|tp|q\.|h\.|tx\.|tx|tt\.|tt|việt nam|viet nam|vn)\s*(?=[-,\s/–.]|$)/gi,
+        '$1'
+      )
       .replace(/,\s*,/g, ',')
       .replace(/^[-,\s/–.]+/, '')
       .replace(/[-,\s/–.]+$/, '')
@@ -122,6 +127,7 @@ async function initAddressMatcher(templateVnPath) {
         for (const [, list] of wardsByMatt.entries()) {
           list.sort((a, b) => b.cleanTen.length - a.cleanTen.length);
         }
+        allUniqueWards.sort((a, b) => b.baseLength - a.baseLength);
       }
     } catch {
       // Fallback gracefully
