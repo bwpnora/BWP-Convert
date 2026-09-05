@@ -72,3 +72,65 @@ test('addressMatcher cleanly strips administrative district numbers and preserve
   assert.strictEqual(r2.addressDetail, '123 Lô H');
 });
 
+test('code review fixes: reverse lookup uniqueness, ward prefix cleanup, and template caching', async () => {
+  // 1. Template caching allows fast consecutive initializations (< 1ms)
+  const t0 = performance.now();
+  const cachedMatcher = await initAddressMatcher('brief/tblt_vn_import.xlsx');
+  const elapsed = performance.now() - t0;
+  assert.ok(elapsed < 20, `Consecutive initAddressMatcher took ${elapsed.toFixed(2)}ms, expected < 20ms (cache hit)`);
+  assert.strictEqual(typeof cachedMatcher.matchAddress, 'function');
+
+  // 2. Ambiguous ward without province leaves provinceDisplay and wardDisplay blank (instead of falsely mapping to Nghệ An)
+  const rAmbiguous1 = cachedMatcher.matchAddress('123 Le Loi, Phuong Tan Phu');
+  assert.strictEqual(rAmbiguous1.provinceDisplay, '', 'Ambiguous ward "Tân Phú" without province must not map to Nghệ An');
+  assert.strictEqual(rAmbiguous1.wardDisplay, '', 'Ambiguous ward without province must leave wardDisplay blank');
+  assert.strictEqual(rAmbiguous1.addressDetail, '123 Le Loi, Phuong Tan Phu');
+
+  const rAmbiguous2 = cachedMatcher.matchAddress('456 Tran Hung Dao, Phuong An Phu');
+  assert.strictEqual(rAmbiguous2.provinceDisplay, '', 'Ambiguous ward "An Phú" without province must leave provinceDisplay blank');
+  assert.strictEqual(rAmbiguous2.wardDisplay, '', 'Ambiguous ward without province must leave wardDisplay blank');
+  assert.strictEqual(rAmbiguous2.addressDetail, '456 Tran Hung Dao, Phuong An Phu');
+
+  // 3. Distinctive ward without province still successfully resolves
+  const rDistinctiveNoDiacritics = cachedMatcher.matchAddress('Khu 2, Dau Tieng');
+  assert.strictEqual(rDistinctiveNoDiacritics.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(rDistinctiveNoDiacritics.wardDisplay.includes('Dầu Tiếng'));
+  assert.strictEqual(rDistinctiveNoDiacritics.addressDetail, 'Khu 2');
+
+  const rDistinctiveDiacritics = cachedMatcher.matchAddress('Khu 2, Dầu Tiếng');
+  assert.strictEqual(rDistinctiveDiacritics.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(rDistinctiveDiacritics.wardDisplay.includes('Dầu Tiếng'));
+  assert.strictEqual(rDistinctiveDiacritics.addressDetail, 'Khu 2');
+
+  // 4. Dangling P. or P. Bến Nghé is cleanly stripped from addressDetail
+  assert.strictEqual(
+    extractDetailedAddress('123 Le Loi, P. Ben Nghe, TP.HCM', 'tphcm', 'Ben Nghe'),
+    '123 Le Loi'
+  );
+  assert.strictEqual(
+    extractDetailedAddress('123 Le Loi, P. Bến Nghé, TP.HCM', 'tphcm', 'Phường Bến Nghé'),
+    '123 Le Loi'
+  );
+
+  const rMatchP1 = cachedMatcher.matchAddress('123 Le Loi, P. Tan Phu, TP.HCM');
+  assert.strictEqual(rMatchP1.addressDetail, '123 Le Loi');
+  assert.strictEqual(rMatchP1.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(rMatchP1.wardDisplay.includes('Tân Phú'));
+
+  const rMatchP2 = cachedMatcher.matchAddress('123 Le Loi, P. Tân Phú, TP. Hồ Chí Minh');
+  assert.strictEqual(rMatchP2.addressDetail, '123 Le Loi');
+  assert.strictEqual(rMatchP2.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(rMatchP2.wardDisplay.includes('Tân Phú'));
+
+  // Preserves single-letter lots like Lô P and Lô X
+  assert.strictEqual(
+    extractDetailedAddress('123 Lô P, Phường Tân Phú, TP.HCM', 'tphcm', 'Phường Tân Phú'),
+    '123 Lô P'
+  );
+  assert.strictEqual(
+    extractDetailedAddress('456 Lô X, Xã Tân An, TP.HCM', 'tphcm', 'Xã Tân An'),
+    '456 Lô X'
+  );
+});
+
+
