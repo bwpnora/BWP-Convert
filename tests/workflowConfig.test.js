@@ -11,7 +11,7 @@ describe('Cấu hình GitHub Actions Workflow Release', () => {
   });
 
   test('Workflow phải có đủ triggers và steps theo Spec', () => {
-    const content = fs.readFileSync(workflowPath, 'utf8');
+    const content = fs.readFileSync(workflowPath, 'utf8').replace(/\r\n/g, '\n');
     assert.ok(content.includes("tags:\n      - 'v*'"), 'Phải trigger trên git tag v*');
     assert.ok(content.includes('workflow_dispatch:'), 'Phải hỗ trợ trigger thủ công');
     assert.ok(content.includes('runs-on: windows-latest'), 'Phải chạy trên windows-latest');
