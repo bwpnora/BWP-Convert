@@ -43,13 +43,13 @@ async function exportToExcel({
     row.getCell(10).value = '';
     row.getCell(11).value = g.provinceDisplay || '';
     row.getCell(12).value = g.wardDisplay || '';
-    row.getCell(13).value = g.address || '';
+    row.getCell(13).value = g.addressDetail || g.address || '';
     row.getCell(14).value = g.arrival || '';
     row.getCell(15).value = g.departure || '';
     row.getCell(16).value = g.room || '';
     row.getCell(17).value = '1 - Du lịch';
     row.getCell(18).value = '';
-    row.getCell(19).value = '';
+    row.getCell(19).value = g.rawAddress || g.address || '';
 
     // Remove italics from guest data row cells (template column defaults to italic: true)
     for (let c = 1; c <= 19; c++) {

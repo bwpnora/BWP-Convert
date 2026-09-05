@@ -24,9 +24,11 @@ async function runConversion(xmlPath, options = {}) {
 
   const matcher = await initAddressMatcher(vnTemplatePath);
   for (const g of vnGuests) {
-    const { provinceDisplay, wardDisplay } = matcher.matchAddress(g.address);
+    const { provinceDisplay, wardDisplay, addressDetail, rawAddress } = matcher.matchAddress(g.address);
     g.provinceDisplay = provinceDisplay;
     g.wardDisplay = wardDisplay;
+    g.addressDetail = addressDetail;
+    g.rawAddress = rawAddress;
   }
 
   const exportResult = await exportToExcel({

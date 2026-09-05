@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
+const path = require('path');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 const { exportToExcel } = require('../src/converter/excelExporter');
@@ -74,3 +75,43 @@ test('exportToExcel creates both files preserving template sheets and correct ro
   assert.strictEqual(wsFg.getCell('F3').value, 'USA - United States of America');
   assert.ok(!wsFg.getCell('B3').font?.italic, 'Foreign guest name must not be italic');
 });
+
+test('exportToExcel fills Col 11, 12, 13, and Col 19 GHI CHU with original address', async () => {
+  const outDir = path.resolve(__dirname, '../dist/test-excel-dual');
+  const sampleVnGuests = [{
+    name: 'NGUYEN VAN A',
+    dob: '01/01/1990',
+    gender: 'M - Nam',
+    idTypeDisplay: '8 - Thẻ Căn Cước',
+    idNumber: '012345678901',
+    provinceDisplay: '701 - TP. Hồ Chí Minh',
+    wardDisplay: '701926542 - Phường Phước Thắng',
+    addressDetail: '2549D CMT8',
+    rawAddress: '2549D CMT8, Phuoc Trung, TP Ba Ria',
+    arrival: '01-09-2026',
+    departure: '05-09-2026',
+    room: '101'
+  }];
+
+  const result = await exportToExcel({
+    vnGuests: sampleVnGuests,
+    foreignGuests: [],
+    vnTemplatePath: 'brief/tblt_vn_import.xlsx',
+    foreignTemplatePath: 'brief/dklt nc ngoài.xlsx',
+    outputDir: outDir,
+    timestamp: '20260905999999'
+  });
+
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(result.vnFilePath);
+  const ws = wb.getWorksheet('DS_KHACH_VIET_NAM_LUU_TRU');
+  const row5 = ws.getRow(5);
+
+  assert.strictEqual(row5.getCell(11).value, '701 - TP. Hồ Chí Minh', 'Col 11 is new province');
+  assert.strictEqual(row5.getCell(12).value, '701926542 - Phường Phước Thắng', 'Col 12 is new ward');
+  assert.strictEqual(row5.getCell(13).value, '2549D CMT8', 'Col 13 is cleaned addressDetail');
+  assert.strictEqual(row5.getCell(19).value, '2549D CMT8, Phuoc Trung, TP Ba Ria', 'Col 19 is original rawAddress');
+
+  fs.rmSync(outDir, { recursive: true, force: true });
+});
+

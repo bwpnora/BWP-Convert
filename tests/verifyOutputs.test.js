@@ -38,7 +38,8 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
     const name = String(row.getCell(2).value || '');
     const nationality = String(row.getCell(5).value || '');
     const province = String(row.getCell(11).value || '');
-    const rawAddress = String(row.getCell(13).value || '');
+    const addressDetail = String(row.getCell(13).value || '');
+    const rawAddress = String(row.getCell(19).value || row.getCell(13).value || '');
     const arrival = String(row.getCell(14).value || '');
     const departure = String(row.getCell(15).value || '');
 
