@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "exceljs": "^4.4.0",
-    "fast-xml-parser": "^4.5.3"
+    "fast-xml-parser": "^4.5.3",
+    "readable-stream": "^3.6.0"
   },
   "devDependencies": {
     "electron": "^34.3.0",
@@ -46,9 +47,6 @@
           "*.xlsx"
         ]
       }
-    ],
-    "asarUnpack": [
-      "**/node_modules/exceljs/**/*"
     ]
   },
   "pnpm": {

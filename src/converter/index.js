@@ -1,3 +1,12 @@
+// Polyfill: Ensure readable-stream has Symbol.asyncIterator from Node native stream
+try {
+  const { Readable: nativeReadable } = require('stream');
+  const rs = require('readable-stream');
+  if (rs && rs.Readable && typeof rs.Readable.prototype[Symbol.asyncIterator] !== 'function') {
+    rs.Readable.prototype[Symbol.asyncIterator] = nativeReadable.prototype[Symbol.asyncIterator];
+  }
+} catch (_) {}
+
 const fs = require('fs');
 const path = require('path');
 const { parsePoliceReport } = require('./xmlParser');

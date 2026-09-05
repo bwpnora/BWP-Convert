@@ -1,6 +1,17 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+// Polyfill: electron-builder bundles readable-stream v2 which lacks Symbol.asyncIterator.
+// ExcelJS needs it for internal SAX stream parsing. Copy from Node.js built-in stream.
+try {
+  const { Readable: nativeReadable } = require('stream');
+  const rs = require('readable-stream');
+  if (rs && rs.Readable && typeof rs.Readable.prototype[Symbol.asyncIterator] !== 'function') {
+    rs.Readable.prototype[Symbol.asyncIterator] = nativeReadable.prototype[Symbol.asyncIterator];
+  }
+} catch (_) {}
+
 const { runConversion } = require('../converter/index');
 
 let mainWindow = null;
@@ -46,7 +57,9 @@ function registerIpcHandlers() {
       const result = await runConversion(filePath);
       return { success: true, ...result };
     } catch (err) {
-      return { success: false, error: err.message || 'Lỗi không xác định khi chuyển đổi.' };
+      console.error('Conversion error:', err);
+      const stack = err.stack || '';
+      return { success: false, error: `${err.message}\n\nStack: ${stack}` };
     }
   });
 
