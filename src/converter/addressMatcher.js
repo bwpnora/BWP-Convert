@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const { cleanText, matchProvinceFromText, PROVINCE_34_MAP } = require('./provinceMap');
@@ -100,7 +101,7 @@ async function initAddressMatcher(templateVnPath) {
   if (templateVnPath) {
     try {
       const wb = new ExcelJS.Workbook();
-      await wb.xlsx.readFile(templateVnPath);
+      await wb.xlsx.load(fs.readFileSync(templateVnPath));
 
       const phuongXaSheet = wb.getWorksheet('PHUONG_XA');
       if (phuongXaSheet) {

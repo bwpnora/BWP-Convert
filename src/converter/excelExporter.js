@@ -21,7 +21,7 @@ async function exportToExcel({
 
   // 1. Export Vietnamese Guests
   const wbVn = new ExcelJS.Workbook();
-  await wbVn.xlsx.readFile(vnTemplatePath);
+  await wbVn.xlsx.load(fs.readFileSync(vnTemplatePath));
   const wsVn = wbVn.getWorksheet('DS_KHACH_VIET_NAM_LUU_TRU');
 
   while (wsVn.rowCount >= 5) {
@@ -68,7 +68,7 @@ async function exportToExcel({
 
   // 2. Export Foreign Guests
   const wbFg = new ExcelJS.Workbook();
-  await wbFg.xlsx.readFile(foreignTemplatePath);
+  await wbFg.xlsx.load(fs.readFileSync(foreignTemplatePath));
   const wsFg = wbFg.getWorksheet('KBTT');
 
   while (wsFg.rowCount >= 3) {
