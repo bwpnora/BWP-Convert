@@ -12,40 +12,40 @@ function cleanText(str) {
 }
 
 const PROVINCE_34_LIST = [
-  { matt: '101', name: 'Hà Nội', display: '101 - TP. Hà Nội' },
-  { matt: '103', name: 'Hải Phòng', display: '103 - TP. Hải Phòng' },
-  { matt: '109', name: 'Hưng Yên', display: '109 - Hưng Yên' },
-  { matt: '117', name: 'Ninh Bình', display: '117 - Ninh Bình' },
-  { matt: '203', name: 'Cao Bằng', display: '203 - Cao Bằng' },
-  { matt: '205', name: 'Lào Cai', display: '205 - Lào Cai' },
-  { matt: '209', name: 'Lạng Sơn', display: '209 - Lạng Sơn' },
-  { matt: '211', name: 'Tuyên Quang', display: '211 - Tuyên Quang' },
-  { matt: '215', name: 'Thái Nguyên', display: '215 - Thái Nguyên' },
-  { matt: '217', name: 'Phú Thọ', display: '217 - Phú Thọ' },
-  { matt: '223', name: 'Bắc Ninh', display: '223 - Bắc Ninh' },
-  { matt: '225', name: 'Quảng Ninh', display: '225 - Quảng Ninh' },
-  { matt: '301', name: 'Lai Châu', display: '301 - Lai Châu' },
-  { matt: '302', name: 'Điện Biên', display: '302 - Điện Biên' },
-  { matt: '303', name: 'Sơn La', display: '303 - Sơn La' },
-  { matt: '401', name: 'Thanh Hóa', display: '401 - Thanh Hóa' },
-  { matt: '403', name: 'Nghệ An', display: '403 - Nghệ An' },
-  { matt: '405', name: 'Hà Tĩnh', display: '405 - Hà Tĩnh' },
-  { matt: '409', name: 'Quảng Trị', display: '409 - Quảng Trị' },
-  { matt: '411', name: 'Huế', display: '411 - TP. Huế' },
-  { matt: '501', name: 'Đà Nẵng', display: '501 - TP. Đà Nẵng' },
-  { matt: '505', name: 'Quảng Ngãi', display: '505 - Quảng Ngãi' },
-  { matt: '511', name: 'Khánh Hòa', display: '511 - Khánh Hòa' },
-  { matt: '603', name: 'Gia Lai', display: '603 - Gia Lai' },
-  { matt: '605', name: 'Đắk Lắk', display: '605 - Đắk Lắk' },
-  { matt: '701', name: 'Hồ Chí Minh', display: '701 - TP. Hồ Chí Minh' },
-  { matt: '703', name: 'Lâm Đồng', display: '703 - Lâm Đồng' },
-  { matt: '709', name: 'Tây Ninh', display: '709 - Tây Ninh' },
-  { matt: '713', name: 'Đồng Nai', display: '713 - Đồng Nai' },
-  { matt: '803', name: 'Đồng Tháp', display: '803 - Đồng Tháp' },
-  { matt: '805', name: 'An Giang', display: '805 - An Giang' },
-  { matt: '809', name: 'Vĩnh Long', display: '809 - Vĩnh Long' },
-  { matt: '815', name: 'Cần Thơ', display: '815 - TP. Cần Thơ' },
-  { matt: '823', name: 'Cà Mau', display: '823 - Cà Mau' }
+  { matt: '101', name: 'Hà Nội', tentt: 'Hà Nội', display: '101 - TP. Hà Nội' },
+  { matt: '103', name: 'Hải Phòng', tentt: 'Hải Phòng', display: '103 - TP. Hải Phòng' },
+  { matt: '109', name: 'Hưng Yên', tentt: 'Hưng Yên', display: '109 - Hưng Yên' },
+  { matt: '117', name: 'Ninh Bình', tentt: 'Ninh Bình', display: '117 - Ninh Bình' },
+  { matt: '203', name: 'Cao Bằng', tentt: 'Cao Bằng', display: '203 - Cao Bằng' },
+  { matt: '205', name: 'Lào Cai', tentt: 'Lào Cai', display: '205 - Lào Cai' },
+  { matt: '209', name: 'Lạng Sơn', tentt: 'Lạng Sơn', display: '209 - Lạng Sơn' },
+  { matt: '211', name: 'Tuyên Quang', tentt: 'Tuyên Quang', display: '211 - Tuyên Quang' },
+  { matt: '215', name: 'Thái Nguyên', tentt: 'Thái Nguyên', display: '215 - Thái Nguyên' },
+  { matt: '217', name: 'Phú Thọ', tentt: 'Phú Thọ', display: '217 - Phú Thọ' },
+  { matt: '223', name: 'Bắc Ninh', tentt: 'Bắc Ninh', display: '223 - Bắc Ninh' },
+  { matt: '225', name: 'Quảng Ninh', tentt: 'Quảng Ninh', display: '225 - Quảng Ninh' },
+  { matt: '301', name: 'Lai Châu', tentt: 'Lai Châu', display: '301 - Lai Châu' },
+  { matt: '302', name: 'Điện Biên', tentt: 'Điện Biên', display: '302 - Điện Biên' },
+  { matt: '303', name: 'Sơn La', tentt: 'Sơn La', display: '303 - Sơn La' },
+  { matt: '401', name: 'Thanh Hóa', tentt: 'Thanh Hóa', display: '401 - Thanh Hóa' },
+  { matt: '403', name: 'Nghệ An', tentt: 'Nghệ An', display: '403 - Nghệ An' },
+  { matt: '405', name: 'Hà Tĩnh', tentt: 'Hà Tĩnh', display: '405 - Hà Tĩnh' },
+  { matt: '409', name: 'Quảng Trị', tentt: 'Quảng Trị', display: '409 - Quảng Trị' },
+  { matt: '411', name: 'Huế', tentt: 'Huế', display: '411 - TP. Huế' },
+  { matt: '501', name: 'Đà Nẵng', tentt: 'Đà Nẵng', display: '501 - TP. Đà Nẵng' },
+  { matt: '505', name: 'Quảng Ngãi', tentt: 'Quảng Ngãi', display: '505 - Quảng Ngãi' },
+  { matt: '511', name: 'Khánh Hòa', tentt: 'Khánh Hòa', display: '511 - Khánh Hòa' },
+  { matt: '603', name: 'Gia Lai', tentt: 'Gia Lai', display: '603 - Gia Lai' },
+  { matt: '605', name: 'Đắk Lắk', tentt: 'Đắk Lắk', display: '605 - Đắk Lắk' },
+  { matt: '701', name: 'Hồ Chí Minh', tentt: 'Hồ Chí Minh', display: '701 - TP. Hồ Chí Minh' },
+  { matt: '703', name: 'Lâm Đồng', tentt: 'Lâm Đồng', display: '703 - Lâm Đồng' },
+  { matt: '709', name: 'Tây Ninh', tentt: 'Tây Ninh', display: '709 - Tây Ninh' },
+  { matt: '713', name: 'Đồng Nai', tentt: 'Đồng Nai', display: '713 - Đồng Nai' },
+  { matt: '803', name: 'Đồng Tháp', tentt: 'Đồng Tháp', display: '803 - Đồng Tháp' },
+  { matt: '805', name: 'An Giang', tentt: 'An Giang', display: '805 - An Giang' },
+  { matt: '809', name: 'Vĩnh Long', tentt: 'Vĩnh Long', display: '809 - Vĩnh Long' },
+  { matt: '815', name: 'Cần Thơ', tentt: 'Cần Thơ', display: '815 - TP. Cần Thơ' },
+  { matt: '823', name: 'Cà Mau', tentt: 'Cà Mau', display: '823 - Cà Mau' }
 ];
 
 const PROVINCE_34_MAP = new Map(PROVINCE_34_LIST.map(p => [p.matt, p]));
@@ -148,8 +148,9 @@ const RAW_PROVINCE_ALIASES = [
   { alias: 'bim son', matt: '401' },
 
   // Nghe An (403)
+  { alias: 'thanh pho vinh', matt: '403' },
+  { alias: 'tp vinh', matt: '403' },
   { alias: 'nghe an', matt: '403' },
-  { alias: 'vinh', matt: '403' },
   { alias: 'cua lo', matt: '403' },
 
   // Ha Tinh (405)
@@ -163,8 +164,8 @@ const RAW_PROVINCE_ALIASES = [
 
   // Hue (411)
   { alias: 'thua thien hue', matt: '411' },
+  { alias: 'thanh pho hue', matt: '411' },
   { alias: 'tp hue', matt: '411' },
-  { alias: 'hue', matt: '411' },
 
   // Da Nang (501)
   { alias: 'thanh pho da nang', matt: '501' },
@@ -172,9 +173,13 @@ const RAW_PROVINCE_ALIASES = [
   { alias: 'da nang', matt: '501' },
   { alias: 'quang nam', matt: '501' },
 
-  // Quang Ngai (505) - Includes Kon Tum
+  // Quang Ngai (505) - Includes Kon Tum, Binh Dinh
   { alias: 'quang ngai', matt: '505' },
   { alias: 'kon tum', matt: '505' },
+  { alias: 'binh dinh', matt: '505' },
+  { alias: 'thanh pho quy nhon', matt: '505' },
+  { alias: 'tp quy nhon', matt: '505' },
+  { alias: 'quy nhon', matt: '505' },
 
   // Khanh Hoa (511) - Includes Ninh Thuan
   { alias: 'khanh hoa', matt: '511' },
@@ -256,9 +261,13 @@ const SORTED_ALIASES = RAW_PROVINCE_ALIASES
   }))
   .sort((a, b) => b.alias.length - a.alias.length);
 
+const PROVINCE_63_TO_34_ALIASES = SORTED_ALIASES;
+
 function matchProvinceFromText(cleanAddressStr) {
   if (!cleanAddressStr) return null;
-  const padded = ` ${cleanAddressStr} `;
+  const cleaned = cleanText(cleanAddressStr);
+  if (!cleaned) return null;
+  const padded = ` ${cleaned} `;
 
   for (const item of SORTED_ALIASES) {
     if (padded.includes(item.paddedAlias)) {
@@ -280,5 +289,6 @@ module.exports = {
   PROVINCE_34_LIST,
   PROVINCE_34_MAP,
   SORTED_ALIASES,
+  PROVINCE_63_TO_34_ALIASES,
   matchProvinceFromText
 };
