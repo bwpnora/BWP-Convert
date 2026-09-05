@@ -135,4 +135,4 @@ nora-convert/
 
 ## 📄 Bản Quyền
 
-Copyright @ 2026 - Website by IT Leon. All rights reserved.
+Copyright @ 2026 - Code by IT Leon. All rights reserved.
