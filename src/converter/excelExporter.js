@@ -37,8 +37,12 @@ async function exportToExcel({
     wsVn.dataValidations.model = {};
   }
 
-  if (wsVn.rowCount >= 5) {
-    wsVn.spliceRows(5, wsVn.rowCount - 4);
+  const totalVnRows = wsVn.rowCount;
+  for (let r = 5; r <= totalVnRows; r++) {
+    wsVn.getRow(r).values = [];
+  }
+  if (wsVn._rows && wsVn._rows.length > 4) {
+    wsVn._rows.length = 4;
   }
 
   vnGuests.forEach((g, idx) => {
@@ -84,8 +88,12 @@ async function exportToExcel({
   await wbFg.xlsx.load(fs.readFileSync(foreignTemplatePath));
   const wsFg = wbFg.getWorksheet('KBTT');
 
-  if (wsFg.rowCount >= 3) {
-    wsFg.spliceRows(3, wsFg.rowCount - 2);
+  const totalFgRows = wsFg.rowCount;
+  for (let r = 3; r <= totalFgRows; r++) {
+    wsFg.getRow(r).values = [];
+  }
+  if (wsFg._rows && wsFg._rows.length > 2) {
+    wsFg._rows.length = 2;
   }
 
   foreignGuests.forEach((g, idx) => {

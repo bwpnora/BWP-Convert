@@ -274,6 +274,14 @@ function matchProvinceFromText(cleanAddressStr) {
 
   for (const item of SORTED_ALIASES) {
     if (padded.includes(item.paddedAlias)) {
+      // Special collision guard for short single-word alias 'hue':
+      // Do not match if part of street names like 'nguyen hue', 'pho hue', 'duong hue'
+      if (item.rawAlias === 'hue') {
+        if (padded.includes(' nguyen hue ') || padded.includes(' pho hue ') || padded.includes(' duong hue ')) {
+          continue;
+        }
+      }
+
       const prov = PROVINCE_34_MAP.get(item.matt);
       return {
         matt: item.matt,
