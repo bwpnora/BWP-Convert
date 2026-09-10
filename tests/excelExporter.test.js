@@ -17,8 +17,8 @@ test('exportToExcel creates both files preserving template sheets and correct ro
       provinceDisplay: '701 - TP. Hồ Chí Minh',
       wardDisplay: '',
       address: '123 Nguyen Trai, Q1, TP. HCM',
-      arrival: '30-08-2026',
-      departure: '02-09-2026',
+      arrival: '30/08/2026',
+      departure: '02/09/2026',
       room: '101'
     }
   ];
@@ -88,8 +88,8 @@ test('exportToExcel fills Col 11, 12, 13, and Col 19 GHI CHU with original addre
     wardDisplay: '701926542 - Phường Phước Thắng',
     addressDetail: '2549D CMT8',
     rawAddress: '2549D CMT8, Phuoc Trung, TP Ba Ria',
-    arrival: '01-09-2026',
-    departure: '05-09-2026',
+    arrival: '01/09/2026',
+    departure: '05/09/2026',
     room: '101'
   }];
 

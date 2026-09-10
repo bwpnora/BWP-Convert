@@ -1,3 +1,12 @@
+// Polyfill: Ensure readable-stream has Symbol.asyncIterator from Node native stream
+try {
+  const { Readable: nativeReadable } = require('stream');
+  const rs = require('readable-stream');
+  if (rs && rs.Readable && typeof rs.Readable.prototype[Symbol.asyncIterator] !== 'function') {
+    rs.Readable.prototype[Symbol.asyncIterator] = nativeReadable.prototype[Symbol.asyncIterator];
+  }
+} catch (_) {}
+
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
@@ -24,8 +33,12 @@ async function exportToExcel({
   await wbVn.xlsx.load(fs.readFileSync(vnTemplatePath));
   const wsVn = wbVn.getWorksheet('DS_KHACH_VIET_NAM_LUU_TRU');
 
-  while (wsVn.rowCount >= 5) {
-    wsVn.spliceRows(5, 1);
+  if (wsVn.dataValidations) {
+    wsVn.dataValidations.model = {};
+  }
+
+  if (wsVn.rowCount >= 5) {
+    wsVn.spliceRows(5, wsVn.rowCount - 4);
   }
 
   vnGuests.forEach((g, idx) => {
@@ -71,8 +84,8 @@ async function exportToExcel({
   await wbFg.xlsx.load(fs.readFileSync(foreignTemplatePath));
   const wsFg = wbFg.getWorksheet('KBTT');
 
-  while (wsFg.rowCount >= 3) {
-    wsFg.spliceRows(3, 1);
+  if (wsFg.rowCount >= 3) {
+    wsFg.spliceRows(3, wsFg.rowCount - 2);
   }
 
   foreignGuests.forEach((g, idx) => {
