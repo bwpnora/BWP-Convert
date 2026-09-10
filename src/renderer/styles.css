@@ -567,6 +567,29 @@ body {
   word-break: break-all;
 }
 
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.file-actions .btn {
+  white-space: nowrap;
+}
+
+.file-actions .btn svg {
+  flex-shrink: 0;
+}
+
+.results-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 /* Address Comparison Preview */
 .address-preview-section {
   border: 1px solid var(--border-color);

@@ -40,7 +40,7 @@ test('Electron GUI source files exist and adhere to structure requirements', () 
   assert.ok(htmlContent.includes('id="loading-section"'), 'HTML must have loading section');
   assert.ok(htmlContent.includes('id="results-section"'), 'HTML must have results section');
   assert.ok(htmlContent.includes('id="error-section"'), 'HTML must have error section');
-  assert.ok(htmlContent.includes('id="open-folder-btn"'), 'HTML must have open folder button');
+  assert.ok(htmlContent.includes('id="open-output-dir-btn"') || htmlContent.includes('id="open-folder-btn"'), 'HTML must have open output dir or folder button');
   assert.ok(htmlContent.includes('id="reset-btn"'), 'HTML must have reset/convert another file button');
   assert.ok(htmlContent.includes('tblt_vn_import'), 'HTML must reference tblt_vn_import template');
   assert.ok(htmlContent.includes('dklt_nc_ngoai'), 'HTML must reference dklt_nc_ngoai template');
@@ -118,6 +118,16 @@ test('preload and main process expose openFile, openFolder, and openOutputDir co
   assert.ok(mainContent.includes("'open-folder'"), 'Main must handle open-folder IPC');
   assert.ok(mainContent.includes("'open-output-dir'"), 'Main must handle open-output-dir IPC');
 });
+
+test('HTML results section includes dual action buttons for both file cards and output directory button', () => {
+  const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+  assert.ok(html.includes('id="open-vn-file-btn"'), 'Must have open-vn-file-btn');
+  assert.ok(html.includes('id="open-vn-folder-btn"'), 'Must have open-vn-folder-btn');
+  assert.ok(html.includes('id="open-foreign-file-btn"'), 'Must have open-foreign-file-btn');
+  assert.ok(html.includes('id="open-foreign-folder-btn"'), 'Must have open-foreign-folder-btn');
+  assert.ok(html.includes('id="open-output-dir-btn"'), 'Must have open-output-dir-btn');
+});
+
 
 
 

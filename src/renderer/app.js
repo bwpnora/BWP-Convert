@@ -28,9 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewToggleIcon = document.getElementById('preview-toggle-icon');
   const addressPreviewTbody = document.getElementById('address-preview-tbody');
 
-  const openVnBtn = document.getElementById('open-vn-btn');
-  const openForeignBtn = document.getElementById('open-foreign-btn');
-  const openFolderBtn = document.getElementById('open-folder-btn');
+  const openVnFileBtn = document.getElementById('open-vn-file-btn');
+  const openVnFolderBtn = document.getElementById('open-vn-folder-btn');
+  const openForeignFileBtn = document.getElementById('open-foreign-file-btn');
+  const openForeignFolderBtn = document.getElementById('open-foreign-folder-btn');
+  const openOutputDirBtn = document.getElementById('open-output-dir-btn');
   const resetBtn = document.getElementById('reset-btn');
 
   const errorMessage = document.getElementById('error-message');
@@ -212,30 +214,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Drag and drop event listeners
+  // Window-wide drag and drop event listeners
+  let dragCounter = 0;
+
   function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
   }
 
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    window.addEventListener(eventName, preventDefaults, false);
-    dropzone.addEventListener(eventName, preventDefaults, false);
-  });
-
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropzone.addEventListener(eventName, () => {
-      dropzone.classList.add('drag-over');
-    }, false);
-  });
-
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropzone.addEventListener(eventName, () => {
+  function handleFileDrop(e) {
+    preventDefaults(e);
+    dragCounter = 0;
+    if (dropzone) {
       dropzone.classList.remove('drag-over');
-    }, false);
-  });
+    }
 
-  dropzone.addEventListener('drop', (e) => {
     const dt = e.dataTransfer;
     if (!dt || !dt.files || dt.files.length === 0) return;
 
@@ -250,12 +243,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!path.toLowerCase().endsWith('.xml')) {
-      showError(`Tệp đã chọn (${file.name}) không có đuôi định dạng .xml.`);
+      showError(`Tệp đã chọn (${file.name || getBasename(path)}) không có đuôi định dạng .xml.`);
       return;
     }
 
     processFile(path);
+  }
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    window.addEventListener(eventName, preventDefaults, false);
+    if (dropzone) {
+      dropzone.addEventListener(eventName, preventDefaults, false);
+    }
   });
+
+  window.addEventListener('dragenter', () => {
+    dragCounter++;
+    if (dropzone) dropzone.classList.add('drag-over');
+  }, false);
+
+  window.addEventListener('dragover', () => {
+    if (dropzone) dropzone.classList.add('drag-over');
+  }, false);
+
+  window.addEventListener('dragleave', () => {
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      if (dropzone) dropzone.classList.remove('drag-over');
+    }
+  }, false);
+
+  window.addEventListener('drop', handleFileDrop, false);
+  if (dropzone) {
+    dropzone.addEventListener('drop', handleFileDrop, false);
+  }
 
   // Dropzone click & keyboard trigger
   dropzone.addEventListener('click', handleBrowseClick);
@@ -283,25 +305,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Results actions
-  openVnBtn.addEventListener('click', () => {
-    if (currentConversion?.vnFilePath && window.api?.openFolder) {
-      window.api.openFolder(currentConversion.vnFilePath);
-    }
-  });
+  if (openVnFileBtn) {
+    openVnFileBtn.addEventListener('click', () => {
+      if (currentConversion?.vnFilePath && window.api?.openFile) {
+        window.api.openFile(currentConversion.vnFilePath);
+      }
+    });
+  }
 
-  openForeignBtn.addEventListener('click', () => {
-    if (currentConversion?.foreignFilePath && window.api?.openFolder) {
-      window.api.openFolder(currentConversion.foreignFilePath);
-    }
-  });
+  if (openVnFolderBtn) {
+    openVnFolderBtn.addEventListener('click', () => {
+      if (currentConversion?.vnFilePath && window.api?.openFolder) {
+        window.api.openFolder(currentConversion.vnFilePath);
+      }
+    });
+  }
 
-  openFolderBtn.addEventListener('click', () => {
-    const target = currentConversion?.vnFilePath || currentConversion?.foreignFilePath;
-    if (target && window.api?.openFolder) {
-      window.api.openFolder(target);
-    }
-  });
+  if (openForeignFileBtn) {
+    openForeignFileBtn.addEventListener('click', () => {
+      if (currentConversion?.foreignFilePath && window.api?.openFile) {
+        window.api.openFile(currentConversion.foreignFilePath);
+      }
+    });
+  }
 
-  resetBtn.addEventListener('click', resetToInitial);
-  errorRetryBtn.addEventListener('click', resetToInitial);
+  if (openForeignFolderBtn) {
+    openForeignFolderBtn.addEventListener('click', () => {
+      if (currentConversion?.foreignFilePath && window.api?.openFolder) {
+        window.api.openFolder(currentConversion.foreignFilePath);
+      }
+    });
+  }
+
+  if (openOutputDirBtn) {
+    openOutputDirBtn.addEventListener('click', () => {
+      if (window.api?.openOutputDir) {
+        window.api.openOutputDir();
+      }
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetToInitial);
+  }
+
+  if (errorRetryBtn) {
+    errorRetryBtn.addEventListener('click', resetToInitial);
+  }
 });
