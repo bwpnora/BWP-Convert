@@ -263,6 +263,28 @@
     </footer>
   </div>
 
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container hidden" role="alert" aria-live="assertive">
+    <div class="toast-card">
+      <div class="toast-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <div class="toast-body">
+        <div class="toast-title">Chuyển đổi hoàn tất thành công!</div>
+        <div class="toast-desc">Đã lưu các tệp Excel vào thư mục Documents\BWP Convert</div>
+      </div>
+      <button type="button" id="toast-close-btn" class="toast-close" aria-label="Đóng thông báo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div id="toast-progress" class="toast-progress"></div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

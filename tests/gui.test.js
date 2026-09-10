@@ -128,6 +128,21 @@ test('HTML results section includes dual action buttons for both file cards and 
   assert.ok(html.includes('id="open-output-dir-btn"'), 'Must have open-output-dir-btn');
 });
 
+test('HTML and app logic contain Toast notification component', () => {
+  const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+  assert.ok(html.includes('id="toast-container"'), 'HTML must have toast-container');
+  assert.ok(html.includes('id="toast-close-btn"'), 'HTML must have toast-close-btn');
+  assert.ok(html.includes('id="toast-progress"'), 'HTML must have toast-progress');
+
+  const css = fs.readFileSync(path.resolve('src/renderer/styles.css'), 'utf-8');
+  assert.ok(css.includes('.toast-container'), 'CSS must style toast-container');
+  assert.ok(css.includes('.toast-progress'), 'CSS must style toast progress bar');
+
+  const js = fs.readFileSync(path.resolve('src/renderer/app.js'), 'utf-8');
+  assert.ok(js.includes('showToast'), 'app.js must implement showToast function');
+});
+
+
 
 
 

@@ -38,7 +38,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMessage = document.getElementById('error-message');
   const errorRetryBtn = document.getElementById('error-retry-btn');
 
+  const toastContainer = document.getElementById('toast-container');
+  const toastCloseBtn = document.getElementById('toast-close-btn');
+  const toastProgress = document.getElementById('toast-progress');
+
   let currentConversion = null;
+  let toastTimeout = null;
+
+  // Toast Notification Helpers
+  function hideToast() {
+    if (toastTimeout) {
+      clearTimeout(toastTimeout);
+      toastTimeout = null;
+    }
+    if (toastContainer) {
+      toastContainer.classList.remove('show');
+      toastContainer.classList.add('hidden');
+    }
+    if (toastProgress) {
+      toastProgress.classList.remove('running');
+    }
+  }
+
+  function showToast() {
+    if (!toastContainer || !toastProgress) return;
+
+    if (toastTimeout) {
+      clearTimeout(toastTimeout);
+      toastTimeout = null;
+    }
+
+    toastProgress.classList.remove('running');
+    void toastProgress.offsetWidth;
+
+    toastContainer.classList.remove('hidden');
+    toastContainer.classList.add('show');
+    toastProgress.classList.add('running');
+
+    toastTimeout = setTimeout(() => {
+      hideToast();
+    }, 5000);
+  }
 
   // View Switcher Helper
   function showView(viewName) {
@@ -72,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reset to initial state
   function resetToInitial() {
     currentConversion = null;
+    hideToast();
     showView('dropzone');
   }
 
@@ -196,6 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderAddressPreview(result.vnGuests || []);
 
       showView('results');
+      showToast();
     } catch (err) {
       showError(err.message || 'Lỗi ngoại lệ khi gọi dịch vụ chuyển đổi.');
     }
@@ -351,5 +393,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (errorRetryBtn) {
     errorRetryBtn.addEventListener('click', resetToInitial);
+  }
+
+  if (toastCloseBtn) {
+    toastCloseBtn.addEventListener('click', hideToast);
   }
 });
