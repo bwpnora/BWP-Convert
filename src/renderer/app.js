@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const foreignFileName = document.getElementById('foreign-file-name');
   const foreignFilePath = document.getElementById('foreign-file-path');
 
+  const togglePreviewBtn = document.getElementById('toggle-preview-btn');
+  const previewCountBadge = document.getElementById('preview-count-badge');
+  const previewTableWrapper = document.getElementById('preview-table-wrapper');
+  const previewToggleIcon = document.getElementById('preview-toggle-icon');
+  const addressPreviewTbody = document.getElementById('address-preview-tbody');
+
   const openVnBtn = document.getElementById('open-vn-btn');
   const openForeignBtn = document.getElementById('open-foreign-btn');
   const openFolderBtn = document.getElementById('open-folder-btn');
@@ -73,6 +79,81 @@ document.addEventListener('DOMContentLoaded', () => {
     showView('error');
   }
 
+  // Escape HTML helper
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Render Address Comparison Table for Vietnamese Guests
+  function renderAddressPreview(vnGuests) {
+    if (!addressPreviewTbody) return;
+    addressPreviewTbody.innerHTML = '';
+
+    if (!vnGuests || vnGuests.length === 0) {
+      if (previewCountBadge) previewCountBadge.textContent = '0 khách';
+      addressPreviewTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">Không có dữ liệu khách Việt Nam</td></tr>';
+      return;
+    }
+
+    if (previewCountBadge) previewCountBadge.textContent = `${vnGuests.length} khách`;
+
+    vnGuests.forEach((g, idx) => {
+      const tr = document.createElement('tr');
+
+      // 1. STT
+      const tdIdx = document.createElement('td');
+      tdIdx.style.fontWeight = '600';
+      tdIdx.style.color = 'var(--text-secondary)';
+      tdIdx.textContent = idx + 1;
+      tr.appendChild(tdIdx);
+
+      // 2. Khách & Phòng
+      const tdGuest = document.createElement('td');
+      tdGuest.innerHTML = `<div class="address-guest-name">${escapeHtml(g.name || 'Chưa rõ')}</div><div class="address-room">Phòng: ${escapeHtml(g.room || 'N/A')}</div>`;
+      tr.appendChild(tdGuest);
+
+      // 3. Địa chỉ cũ (PMS raw)
+      const tdOld = document.createElement('td');
+      tdOld.className = 'address-old';
+      tdOld.textContent = g.rawAddress || g.address || '(Trống)';
+      tr.appendChild(tdOld);
+
+      // 4. Địa chỉ mới (Công an)
+      const tdNew = document.createElement('td');
+      tdNew.className = 'address-new';
+      const parts = [];
+      if (g.addressDetail) parts.push(g.addressDetail);
+      if (g.wardDisplay) parts.push(g.wardDisplay);
+      if (g.provinceDisplay) parts.push(g.provinceDisplay);
+      tdNew.textContent = parts.length > 0 ? parts.join(', ') : '(Không xác định)';
+      tr.appendChild(tdNew);
+
+      // 5. Trạng thái / Độ khớp
+      const tdQuality = document.createElement('td');
+      let badgeClass = 'badge-unmatched';
+      let badgeLabel = 'Chưa rõ';
+
+      if (g.matchQuality === 'EXACT' || g.matchQuality === 'WARD_ALIASED') {
+        badgeClass = 'badge-exact';
+        badgeLabel = 'Chính xác';
+      } else if (g.matchQuality === 'DISTRICT_FALLBACK') {
+        badgeClass = 'badge-district';
+        badgeLabel = 'Theo Quận';
+      }
+
+      tdQuality.innerHTML = `<span class="badge-status ${badgeClass}">${badgeLabel}</span>`;
+      tr.appendChild(tdQuality);
+
+      addressPreviewTbody.appendChild(tr);
+    });
+  }
+
   // Process conversion
   async function processFile(filePath) {
     if (!filePath) return;
@@ -108,6 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       foreignFileName.textContent = result.foreignFileName || getBasename(result.foreignFilePath);
       foreignFilePath.textContent = result.foreignFilePath || '';
+
+      // Populate Address Comparison Preview
+      renderAddressPreview(result.vnGuests || []);
 
       showView('results');
     } catch (err) {
@@ -183,6 +267,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   browseBtn.addEventListener('click', handleBrowseClick);
+
+  // Preview table accordion toggle
+  if (togglePreviewBtn) {
+    togglePreviewBtn.addEventListener('click', () => {
+      if (previewTableWrapper) previewTableWrapper.classList.toggle('hidden');
+      if (previewToggleIcon) previewToggleIcon.classList.toggle('collapsed');
+    });
+    togglePreviewBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePreviewBtn.click();
+      }
+    });
+  }
 
   // Results actions
   openVnBtn.addEventListener('click', () => {

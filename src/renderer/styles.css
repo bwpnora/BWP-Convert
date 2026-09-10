@@ -567,11 +567,145 @@ body {
   word-break: break-all;
 }
 
-.results-actions {
+/* Address Comparison Preview */
+.address-preview-section {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.preview-header {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview-header:hover {
+  background-color: #f1f5f9;
+}
+
+.preview-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.preview-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background-color: #e0e7ff;
+  color: #3730a3;
+  border-radius: 9999px;
+  margin-left: 6px;
+}
+
+.preview-toggle-icon {
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.preview-toggle-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+.preview-table-wrapper {
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.preview-table-wrapper.hidden {
+  display: none;
+}
+
+.address-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.address-preview-table th {
+  position: sticky;
+  top: 0;
+  background-color: #f1f5f9;
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.address-preview-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--text-primary);
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.address-preview-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.address-guest-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.address-room {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.address-old {
+  font-family: inherit;
+  color: var(--text-secondary);
+}
+
+.address-new {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-exact {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-district {
+  background-color: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
+.badge-unmatched {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 /* Error State */

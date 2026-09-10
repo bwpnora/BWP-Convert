@@ -67,3 +67,18 @@ test('preload script exposes getPathForFile API contract', () => {
   assert.ok(preloadContent.includes('webUtils'), 'Preload must require webUtils from electron');
 });
 
+test('HTML template, styles, and app logic contain address preview section', () => {
+  const html = fs.readFileSync('src/renderer/index.html', 'utf-8');
+  assert.ok(html.includes('address-preview-section'), 'Must contain address-preview-section');
+  assert.ok(html.includes('address-preview-table'), 'Must render preview table');
+  assert.ok(html.includes('address-preview-tbody'), 'Must render preview tbody');
+
+  const css = fs.readFileSync('src/renderer/styles.css', 'utf-8');
+  assert.ok(css.includes('.badge-exact'), 'CSS must style badge-exact');
+  assert.ok(css.includes('.badge-district'), 'CSS must style badge-district');
+
+  const js = fs.readFileSync('src/renderer/app.js', 'utf-8');
+  assert.ok(js.includes('renderAddressPreview'), 'app.js must implement renderAddressPreview');
+});
+
+
