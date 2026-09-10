@@ -142,6 +142,52 @@ test('HTML and app logic contain Toast notification component', () => {
   assert.ok(js.includes('showToast'), 'app.js must implement showToast function');
 });
 
+test('worker thread executes runConversion and writes output files to Documents/BWP Convert', async () => {
+  const os = require('os');
+  const { Worker } = require('worker_threads');
+  const targetDir = path.join(os.homedir(), 'Documents', 'BWP Convert');
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+
+  const sampleXml = path.resolve('brief/police_report2_75766981.XML');
+  assert.ok(fs.existsSync(sampleXml), 'Sample XML must exist');
+
+  const result = await new Promise((resolve, reject) => {
+    const worker = new Worker(path.resolve('src/main/worker.js'), {
+      workerData: {
+        xmlPath: sampleXml,
+        options: { outputDir: targetDir }
+      }
+    });
+
+    worker.on('message', resolve);
+    worker.on('error', reject);
+    worker.on('exit', (code) => {
+      if (code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+
+  assert.strictEqual(result.success, true, 'Worker conversion must succeed');
+  assert.strictEqual(result.totalCount, 45, 'Total guests must be 45');
+  assert.strictEqual(result.vnCount, 33, 'VN count must be 33');
+  assert.strictEqual(result.foreignCount, 12, 'Foreign count must be 12');
+
+  assert.ok(result.vnFilePath.startsWith(targetDir), 'VN file must be inside Documents/BWP Convert');
+  assert.ok(result.foreignFilePath.startsWith(targetDir), 'Foreign file must be inside Documents/BWP Convert');
+
+  assert.ok(fs.existsSync(result.vnFilePath), 'VN file must exist on disk in Documents/BWP Convert');
+  assert.ok(fs.existsSync(result.foreignFilePath), 'Foreign file must exist on disk in Documents/BWP Convert');
+
+  assert.ok(Array.isArray(result.vnGuests), 'vnGuests must be an array');
+  assert.strictEqual(result.vnGuests.length, 33, 'vnGuests must contain 33 VN guests');
+  assert.ok(result.vnGuests.some((g) => g.provinceDisplay && g.provinceDisplay.length > 0), 'Some guests must have mapped provinceDisplay');
+  assert.ok(result.vnGuests.some((g) => g.matchQuality), 'Some guests must have matchQuality');
+});
+
+
+
+
 
 
 
