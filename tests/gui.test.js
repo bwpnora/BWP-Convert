@@ -59,3 +59,11 @@ test('Electron GUI source files exist and adhere to structure requirements', () 
   assert.ok(appJsContent.includes('window.api.selectFile'), 'App JS must call window.api.selectFile');
   assert.ok(appJsContent.includes('dropzone'), 'App JS must manage dropzone');
 });
+
+test('preload script exposes getPathForFile API contract', () => {
+  const preloadPath = path.resolve('src/preload/preload.js');
+  const preloadContent = fs.readFileSync(preloadPath, 'utf-8');
+  assert.ok(preloadContent.includes('getPathForFile'), 'Preload must expose getPathForFile');
+  assert.ok(preloadContent.includes('webUtils'), 'Preload must require webUtils from electron');
+});
+

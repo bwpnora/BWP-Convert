@@ -156,7 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!dt || !dt.files || dt.files.length === 0) return;
 
     const file = dt.files[0];
-    const path = file.path;
+    const path = (window.api && typeof window.api.getPathForFile === 'function')
+      ? window.api.getPathForFile(file)
+      : (file ? file.path : '');
 
     if (!path) {
       showError('Không thể lấy đường dẫn tệp trên hệ thống. Vui lòng sử dụng nút "Chọn file từ máy tính".');
