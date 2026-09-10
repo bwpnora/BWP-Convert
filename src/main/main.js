@@ -127,6 +127,19 @@ function registerIpcHandlers() {
     }
   });
 
+  ipcMain.handle('open-file', async (event, filePath) => {
+    try {
+      if (!filePath || !fs.existsSync(filePath)) {
+        return { success: false, error: 'Tệp không tồn tại.' };
+      }
+      const err = await shell.openPath(filePath);
+      if (err) return { success: false, error: err };
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
   ipcMain.handle('open-folder', async (event, folderOrFilePath) => {
     try {
       if (!folderOrFilePath) {
@@ -142,19 +155,26 @@ function registerIpcHandlers() {
         }
         return { success: true };
       }
-
-      // Check if parent directory exists
       const parentDir = path.dirname(folderOrFilePath);
       if (fs.existsSync(parentDir)) {
         const err = await shell.openPath(parentDir);
         if (err) return { success: false, error: err };
         return { success: true };
       }
-
       return { success: false, error: 'Thư mục hoặc tệp không tồn tại.' };
     } catch (err) {
       return { success: false, error: err.message };
     }
+  });
+
+  ipcMain.handle('open-output-dir', async () => {
+    const dir = getDocumentsOutputDir();
+    if (dir && fs.existsSync(dir)) {
+      const err = await shell.openPath(dir);
+      if (err) return { success: false, error: err };
+      return { success: true, path: dir };
+    }
+    return { success: false, error: 'Thư mục chưa được khởi tạo.' };
   });
 }
 

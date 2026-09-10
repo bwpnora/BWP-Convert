@@ -107,5 +107,17 @@ test('main process configures Worker execution and Documents/BWP Convert directo
   assert.ok(mainContent.includes("getPath('documents')"), 'main.js must resolve documents path');
 });
 
+test('preload and main process expose openFile, openFolder, and openOutputDir contracts', () => {
+  const preloadContent = fs.readFileSync(path.resolve('src/preload/preload.js'), 'utf-8');
+  assert.ok(preloadContent.includes('openFile'), 'Preload must expose openFile');
+  assert.ok(preloadContent.includes('openFolder'), 'Preload must expose openFolder');
+  assert.ok(preloadContent.includes('openOutputDir'), 'Preload must expose openOutputDir');
+
+  const mainContent = fs.readFileSync(path.resolve('src/main/main.js'), 'utf-8');
+  assert.ok(mainContent.includes("'open-file'"), 'Main must handle open-file IPC');
+  assert.ok(mainContent.includes("'open-folder'"), 'Main must handle open-folder IPC');
+  assert.ok(mainContent.includes("'open-output-dir'"), 'Main must handle open-output-dir IPC');
+});
+
 
 
