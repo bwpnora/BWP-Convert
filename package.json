@@ -1,6 +1,6 @@
 {
   "name": "bwp-convert",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Opera PMS XML to Excel Converter for Vietnamese and Foreign Police Stay Reports",
   "main": "src/main/main.js",
   "type": "commonjs",

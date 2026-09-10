@@ -50,10 +50,10 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
     // Col 5 (VNM - Viet Nam)
     assert.strictEqual(nationality, 'VNM - Viet Nam', `Row ${r} nationality must be 'VNM - Viet Nam'`);
 
-    // Col 14 & 15 dates are hyphenated (dd-MM-yyyy)
-    const hyphenDateRegex = /^\d{2}-\d{2}-\d{4}$/;
-    assert.match(arrival, hyphenDateRegex, `Row ${r} arrival date '${arrival}' must match dd-MM-yyyy`);
-    assert.match(departure, hyphenDateRegex, `Row ${r} departure date '${departure}' must match dd-MM-yyyy`);
+    // Col 14 & 15 dates are slash-separated (dd/mm/yyyy)
+    const slashVnDateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    assert.match(arrival, slashVnDateRegex, `Row ${r} arrival date '${arrival}' must match dd/mm/yyyy`);
+    assert.match(departure, slashVnDateRegex, `Row ${r} departure date '${departure}' must match dd/mm/yyyy`);
 
     // Assert address provinceDisplay is mapped for Vietnamese guests (e.g., 701 - TP. Hồ Chí Minh or 101 - TP. Hà Nội for addresses containing those keywords)
     const cleanAddr = rawAddress

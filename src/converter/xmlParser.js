@@ -1,4 +1,4 @@
-﻿const { XMLParser } = require('fast-xml-parser');
+const { XMLParser } = require('fast-xml-parser');
 
 const COUNTRY_LOOKUP_MAP = {
   'CN': 'CHN - China',
@@ -34,6 +34,11 @@ function normalizeName(nameFormula, first, last) {
 function normalizeDate(rawDate, defaultYearPrefix = '20', separator = '/') {
   if (!rawDate) return '';
   const str = String(rawDate).trim();
+  const matchIso = str.match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+  if (matchIso) {
+    const [, y, m, d] = matchIso;
+    return `${d}${separator}${m}${separator}${y}`;
+  }
   const match = str.match(/^(\d{2})[-/](\d{2})[-/](\d{2})$/);
   if (match) {
     const [, d, m, y] = match;
@@ -44,6 +49,55 @@ function normalizeDate(rawDate, defaultYearPrefix = '20', separator = '/') {
     const [, d, m, y] = match4;
     return `${d}${separator}${m}${separator}${y}`;
   }
+  return str;
+}
+
+function normalizeBirthDate(rawDate, idNumber = '', separator = '/') {
+  if (!rawDate) return '';
+  const str = String(rawDate).trim();
+
+  const matchIso = str.match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+  if (matchIso) {
+    const [, y, m, d] = matchIso;
+    return `${d}${separator}${m}${separator}${y}`;
+  }
+
+  const match4 = str.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
+  if (match4) {
+    const [, d, m, y] = match4;
+    return `${d}${separator}${m}${separator}${y}`;
+  }
+
+  const match2 = str.match(/^(\d{2})[-/](\d{2})[-/](\d{2})$/);
+  if (match2) {
+    const [, d, m, y] = match2;
+    let yearPrefix = '19';
+    const cleanId = String(idNumber || '').trim();
+    const numY = parseInt(y, 10);
+    const currentYear = new Date().getFullYear();
+
+    if (/^\d{12}$/.test(cleanId) && cleanId.slice(4, 6) === y) {
+      const centuryCode = cleanId[3];
+      if (['0', '1'].includes(centuryCode)) {
+        yearPrefix = '19';
+      } else if (['2', '3'].includes(centuryCode)) {
+        yearPrefix = '20';
+      } else if (['8', '9'].includes(centuryCode)) {
+        yearPrefix = '18';
+      } else if (['4', '5'].includes(centuryCode)) {
+        yearPrefix = '21';
+      }
+    } else {
+      if (2000 + numY > currentYear) {
+        yearPrefix = '19';
+      } else {
+        yearPrefix = '20';
+      }
+    }
+
+    return `${d}${separator}${m}${separator}${yearPrefix}${y}`;
+  }
+
   return str;
 }
 
@@ -94,7 +148,7 @@ function parsePoliceReport(xmlContent) {
       const idNumber = (primaryId.ID_NUMBER || '').trim();
 
       const fullName = normalizeName(g.NAME_FORMULA, g.FIRST, g.LAST);
-      const dob = normalizeDate(g.BIRTH_DATE, '20', '/');
+      const dob = normalizeBirthDate(g.BIRTH_DATE, idNumber, '/');
       const gender = normalizeGender(g.GENDER);
       const room = String(g.ROOM || '').trim();
       const address = [g.ADDRESS1, g.CITY].filter(Boolean).map(s => String(s).trim()).join(', ');
@@ -127,8 +181,8 @@ function parsePoliceReport(xmlContent) {
       };
 
       if (isVNExplicit || isVnFallback) {
-        guestObj.arrival = normalizeDate(g.TO_CHAR_RGV_TRUNC_ARRIVAL_PMS_, '20', '-');
-        guestObj.departure = normalizeDate(g.TO_CHAR_RGV_TRUNC_DEPARTURE_PM, '20', '-');
+        guestObj.arrival = normalizeDate(g.TO_CHAR_RGV_TRUNC_ARRIVAL_PMS_, '20', '/');
+        guestObj.departure = normalizeDate(g.TO_CHAR_RGV_TRUNC_DEPARTURE_PM, '20', '/');
         guestObj.nationalityCode = 'VNM - Viet Nam';
         guestObj.idTypeDisplay = idType === 'PASSPORT' ? '4 - Hộ chiếu' : '8 - Thẻ Căn Cước';
         vnGuests.push(guestObj);
@@ -153,6 +207,7 @@ module.exports = {
   parsePoliceReport,
   normalizeName,
   normalizeDate,
+  normalizeBirthDate,
   normalizeGender,
   normalizeCountry,
   COUNTRY_LOOKUP_MAP
