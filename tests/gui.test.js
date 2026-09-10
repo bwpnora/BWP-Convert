@@ -91,4 +91,21 @@ test('application metadata reflects version 1.1.0 and logo branding', () => {
   assert.ok(fs.existsSync(path.resolve('src/images/logo.png')), 'src/images/logo.png must exist');
 });
 
+test('worker script exists and defines background conversion runner', () => {
+  const workerPath = path.resolve('src/main/worker.js');
+  assert.ok(fs.existsSync(workerPath), 'src/main/worker.js must exist');
+  const content = fs.readFileSync(workerPath, 'utf-8');
+  assert.ok(content.includes('worker_threads'), 'Worker must use worker_threads');
+  assert.ok(content.includes('runConversion'), 'Worker must invoke runConversion');
+  assert.ok(content.includes('parentPort.postMessage'), 'Worker must post results via parentPort');
+});
+
+test('main process configures Worker execution and Documents/BWP Convert directory', () => {
+  const mainContent = fs.readFileSync(path.resolve('src/main/main.js'), 'utf-8');
+  assert.ok(mainContent.includes('worker_threads'), 'main.js must import worker_threads');
+  assert.ok(mainContent.includes('BWP Convert'), 'main.js must reference BWP Convert folder');
+  assert.ok(mainContent.includes("getPath('documents')"), 'main.js must resolve documents path');
+});
+
+
 

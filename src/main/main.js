@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { Worker } = require('worker_threads');
 const path = require('path');
 const fs = require('fs');
 
@@ -12,7 +13,7 @@ try {
   }
 } catch (_) {}
 
-const { runConversion } = require('../converter/index');
+// Background worker thread executes runConversion in src/main/worker.js
 
 let mainWindow = null;
 
@@ -45,6 +46,20 @@ function createWindow() {
   });
 }
 
+function getDocumentsOutputDir() {
+  try {
+    const docsDir = app.getPath('documents');
+    const bwpDir = path.join(docsDir, 'BWP Convert');
+    if (!fs.existsSync(bwpDir)) {
+      fs.mkdirSync(bwpDir, { recursive: true });
+    }
+    return bwpDir;
+  } catch (err) {
+    console.error('Failed to create Documents/BWP Convert dir, falling back to temp:', err);
+    return null;
+  }
+}
+
 function registerIpcHandlers() {
   ipcMain.handle('convert-file', async (event, filePath) => {
     try {
@@ -54,12 +69,40 @@ function registerIpcHandlers() {
       if (!fs.existsSync(filePath)) {
         return { success: false, error: `Không tìm thấy file: ${filePath}` };
       }
-      const result = await runConversion(filePath);
-      return { success: true, ...result };
+
+      const outputDir = getDocumentsOutputDir() || path.dirname(filePath);
+
+      return new Promise((resolve) => {
+        const worker = new Worker(path.join(__dirname, 'worker.js'), {
+          workerData: {
+            xmlPath: filePath,
+            options: { outputDir }
+          }
+        });
+
+        worker.on('message', (message) => {
+          resolve(message);
+        });
+
+        worker.on('error', (err) => {
+          resolve({
+            success: false,
+            error: `Lỗi worker: ${err.message}`
+          });
+        });
+
+        worker.on('exit', (code) => {
+          if (code !== 0) {
+            resolve({
+              success: false,
+              error: `Worker tiến trình nền kết thúc bất thường với mã: ${code}`
+            });
+          }
+        });
+      });
     } catch (err) {
-      console.error('Conversion error:', err);
-      const stack = err.stack || '';
-      return { success: false, error: `${err.message}\n\nStack: ${stack}` };
+      console.error('Conversion setup error:', err);
+      return { success: false, error: `${err.message}` };
     }
   });
 
