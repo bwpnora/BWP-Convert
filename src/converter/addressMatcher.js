@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const { cleanText, matchProvinceFromText, PROVINCE_34_MAP } = require('./provinceMap');
+const { lookupMergedWard, lookupDistrictFallback } = require('./administrativeMapping');
 
 const MATCHER_CACHE = new Map();
 
@@ -28,9 +29,9 @@ function makeDiacriticRegexPattern(text) {
     .join('');
 }
 
-function extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen) {
+function extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen, options = {}) {
   if (!rawAddress) return '';
-  if (!matchedProvAlias && !matchedWardTen) {
+  if (!matchedProvAlias && !matchedWardTen && !options.matchedWardAlias) {
     return rawAddress;
   }
   let detail = rawAddress;
@@ -61,17 +62,27 @@ function extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen) {
     const baseWard = matchedWardTen.replace(/^(phường|xã|đặc khu|thị trấn|phuong|xa|dac khu|thi tran)\s+/i, '');
     detail = removeFragment(detail, baseWard);
   }
+  if (options.matchedWardAlias) {
+    detail = removeFragment(detail, options.matchedWardAlias);
+    const baseWardAlias = options.matchedWardAlias.replace(/^(phường|xã|đặc khu|thị trấn|phuong|xa|dac khu|thi tran)\s+/i, '');
+    detail = removeFragment(detail, baseWardAlias);
+  }
 
   // 1. Compound administrative district/city patterns (e.g. "Quận 1", "Q.1", "Q. 1", "Q1", "Huyện Củ Chi", "H. Củ Chi")
   // Constrain district name match to {1,3} words: (\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})
-  detail = detail
-    .replace(/(^|[-,\/–])\s*(quận|huyện|thị xã|tx\.|thành phố|tp\.|tỉnh)\s+(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})(?=[-,\s/–.]|$)/gui, '$1')
-    .replace(/(^|[-,\/–])\s*(q\.|h\.|tx\.|tp\.)\s*(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})(?=[-,\s/–.]|$)/gui, '$1')
-    .replace(/(^|[-,\s\/–])\s*(quận|huyện|q\.|q)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1')
-    .replace(/(^|[-,\s\/–])\s*(h\.)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1');
+  // If matchQuality is NOT DISTRICT_FALLBACK, strip district keywords
+  if (options.matchQuality !== 'DISTRICT_FALLBACK') {
+    detail = detail
+      .replace(/(^|[-,\/–])\s*(quận|huyện|thị xã|tx\.|thành phố|tp\.|tỉnh)\s+(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})(?=[-,\s/–.]|$)/gui, '$1')
+      .replace(/(^|[-,\/–])\s*(q\.|h\.|tx\.|tp\.)\s*(\d+|[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})(?=[-,\s/–.]|$)/gui, '$1')
+      .replace(/(^|[-,\s\/–])\s*(quận|huyện|q\.|q)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1')
+      .replace(/(^|[-,\s\/–])\s*(h\.)\s*(\d+)(?=[-,\s/–.]|$)/gui, '$1');
+  } else {
+    detail = detail
+      .replace(/(^|[-,\/–])\s*(thành phố|tp\.|tỉnh)\s+([\p{L}\d]+(?:\s+[\p{L}\d]+){0,2})(?=[-,\s/–.]|$)/gui, '$1');
+  }
 
   // 2. Clean dangling residual administrative keywords at boundaries
-  // Add phường, xã, p\., x\. (requiring dot or word boundary so single-letter lots like Lô P, Lô X are preserved)
   for (let i = 0; i < 2; i++) {
     detail = detail
       .replace(
@@ -163,12 +174,12 @@ async function initAddressMatcher(templateVnPath) {
 
   function matchAddress(rawAddress) {
     if (!rawAddress) {
-      return { provinceDisplay: '', wardDisplay: '', addressDetail: '', rawAddress: '' };
+      return { provinceDisplay: '', wardDisplay: '', addressDetail: '', rawAddress: '', matchQuality: 'UNMATCHED' };
     }
 
     const cleanAddr = cleanText(rawAddress);
     if (!cleanAddr) {
-      return { provinceDisplay: '', wardDisplay: '', addressDetail: rawAddress, rawAddress };
+      return { provinceDisplay: '', wardDisplay: '', addressDetail: rawAddress, rawAddress, matchQuality: 'UNMATCHED' };
     }
 
     const paddedAddr = ` ${cleanAddr} `;
@@ -181,16 +192,41 @@ async function initAddressMatcher(templateVnPath) {
 
     // 2. Ward Match
     let matchedWardObj = null;
+    let matchQuality = 'UNMATCHED';
+    let matchedWardAlias = '';
+
     if (matchedMatt && wardsByMatt.has(matchedMatt)) {
       const wards = wardsByMatt.get(matchedMatt);
+      // 2a. Direct match with official 3324 wards
       for (const w of wards) {
         if (w.paddedCleanTen && paddedAddr.includes(w.paddedCleanTen)) {
           matchedWardObj = w;
+          matchQuality = 'EXACT';
           break;
         }
         if (w.paddedBaseTen && w.baseLength >= 3 && paddedAddr.includes(w.paddedBaseTen)) {
           matchedWardObj = w;
+          matchQuality = 'EXACT';
           break;
+        }
+      }
+
+      // 2b. Merged old wards match
+      if (!matchedWardObj) {
+        const merged = lookupMergedWard(matchedMatt, cleanAddr);
+        if (merged) {
+          matchedWardObj = merged;
+          matchQuality = 'WARD_ALIASED';
+          matchedWardAlias = merged.matchedWardAlias || '';
+        }
+      }
+
+      // 2c. District fallback match
+      if (!matchedWardObj) {
+        const fallback = lookupDistrictFallback(matchedMatt, cleanAddr);
+        if (fallback) {
+          matchedWardObj = fallback;
+          matchQuality = 'DISTRICT_FALLBACK';
         }
       }
     } else if (!matchedMatt) {
@@ -201,6 +237,7 @@ async function initAddressMatcher(templateVnPath) {
           matchedMatt = w.matt;
           const p = PROVINCE_34_MAP.get(w.matt);
           provinceDisplay = p ? p.display : `${w.matt}`;
+          matchQuality = 'EXACT';
           break;
         }
         if (paddedAddr.includes(w.paddedBaseTen)) {
@@ -208,8 +245,17 @@ async function initAddressMatcher(templateVnPath) {
           matchedMatt = w.matt;
           const p = PROVINCE_34_MAP.get(w.matt);
           provinceDisplay = p ? p.display : `${w.matt}`;
+          matchQuality = 'EXACT';
           break;
         }
+      }
+    }
+
+    if (matchQuality === 'UNMATCHED') {
+      if (provinceDisplay && matchedWardObj) {
+        matchQuality = 'EXACT';
+      } else if (provinceDisplay) {
+        matchQuality = 'PROVINCE_ONLY';
       }
     }
 
@@ -217,13 +263,17 @@ async function initAddressMatcher(templateVnPath) {
     const matchedWardTen = matchedWardObj ? matchedWardObj.ten : '';
 
     // 3. Extract Detailed Address (Column 13)
-    const addressDetail = extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen);
+    const addressDetail = extractDetailedAddress(rawAddress, matchedProvAlias, matchedWardTen, {
+      matchedWardAlias,
+      matchQuality
+    });
 
     return {
       provinceDisplay,
       wardDisplay,
       addressDetail,
-      rawAddress
+      rawAddress,
+      matchQuality
     };
   }
 

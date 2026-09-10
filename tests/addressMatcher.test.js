@@ -133,4 +133,38 @@ test('code review fixes: reverse lookup uniqueness, ward prefix cleanup, and tem
   );
 });
 
+test('addressMatcher correctly converts real-world Opera PMS addresses to 34-province & new wards', async () => {
+  const matcher = await initAddressMatcher('brief/tblt_vn_import.xlsx');
+
+  // Case 1: Q1 with old ward Nguyen Thai Binh
+  const r1 = matcher.matchAddress('59 PHAM NGU LAO, NGUYEN THAI BINH, Q1, Ho Chi Minh');
+  assert.strictEqual(r1.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(r1.wardDisplay.includes('Bến Thành'), `Ward must be Ben Thanh, got '${r1.wardDisplay}'`);
+  assert.ok(r1.addressDetail.includes('59 PHAM NGU LAO'), `Detail must contain street, got '${r1.addressDetail}'`);
+  assert.strictEqual(r1.matchQuality, 'WARD_ALIASED');
+
+  // Case 2: Hanoi old ward Hang Bong, Hoan Kiem
+  const r2 = matcher.matchAddress('23 HOI VU,HANG BONG, HOAN KIEM, HA NOI');
+  assert.strictEqual(r2.provinceDisplay, '101 - TP. Hà Nội');
+  assert.ok(r2.wardDisplay.includes('Hoàn Kiếm'), `Ward must be Hoan Kiem, got '${r2.wardDisplay}'`);
+  assert.ok(r2.addressDetail.includes('23 HOI VU'), `Detail must contain street, got '${r2.addressDetail}'`);
+
+  // Case 3: Hue address
+  const r3 = matcher.matchAddress('56 THANH LAM BO, PHU XUAN, HUE');
+  assert.strictEqual(r3.provinceDisplay, '411 - TP. Huế', `Province must be Hue, got '${r3.provinceDisplay}'`);
+
+  // Case 4: District fallback (only district without specific ward or unlisted ward)
+  const r4 = matcher.matchAddress('11 DONG DEN, PHUONG 1, TAN BINH, HO CHI MINH');
+  assert.strictEqual(r4.provinceDisplay, '701 - TP. Hồ Chí Minh');
+  assert.ok(r4.wardDisplay.includes('Tân Bình'), `Ward must be Tan Binh, got '${r4.wardDisplay}'`);
+  assert.ok(r4.addressDetail.includes('11 DONG DEN'), `Detail must contain 11 DONG DEN, got '${r4.addressDetail}'`);
+
+  // Case 5: Ca Mau address
+  const r5 = matcher.matchAddress('AP CIA RAN B, PHU HUNG, CAI NUOC, CA MAU');
+  assert.strictEqual(r5.provinceDisplay, '823 - Cà Mau');
+  assert.ok(r5.wardDisplay.includes('Cái Nước'));
+  assert.ok(r5.addressDetail.includes('AP CIA RAN B'));
+});
+
+
 

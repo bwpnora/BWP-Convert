@@ -76,6 +76,8 @@ const RAW_PROVINCE_ALIASES = [
   { alias: 'thanh pho ha noi', matt: '101' },
   { alias: 'tp ha noi', matt: '101' },
   { alias: 'ha noi', matt: '101' },
+  { alias: 'tp hn', matt: '101' },
+  { alias: 'hn', matt: '101' },
   { alias: 'ha tay', matt: '101' },
 
   // Hai Phong (103) - Includes Hai Duong
@@ -166,6 +168,7 @@ const RAW_PROVINCE_ALIASES = [
   { alias: 'thua thien hue', matt: '411' },
   { alias: 'thanh pho hue', matt: '411' },
   { alias: 'tp hue', matt: '411' },
+  { alias: 'hue', matt: '411' },
 
   // Da Nang (501)
   { alias: 'thanh pho da nang', matt: '501' },

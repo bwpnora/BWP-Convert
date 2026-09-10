@@ -229,7 +229,10 @@ function lookupMergedWard(matt, cleanWardName) {
     for (const alias of item.aliases) {
       const cleanAlias = cleanText(alias);
       if (target === cleanAlias || target.includes(cleanAlias)) {
-        return item.ward;
+        return {
+          ...item.ward,
+          matchedWardAlias: alias
+        };
       }
     }
   }
@@ -246,7 +249,10 @@ function lookupDistrictFallback(matt, cleanDistrictName) {
     for (const alias of item.aliases) {
       const cleanAlias = cleanText(alias);
       if (target === cleanAlias || target.includes(cleanAlias)) {
-        return item.ward;
+        return {
+          ...item.ward,
+          matchedDistrictAlias: alias
+        };
       }
     }
   }
