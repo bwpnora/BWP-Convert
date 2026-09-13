@@ -76,6 +76,8 @@ test('normalizeGender and normalizeCountry handle various inputs', () => {
   assert.strictEqual(normalizeCountry('CHN'), 'CHN - China');
   assert.strictEqual(normalizeCountry('KR'), 'KOR - Korea (South)');
   assert.strictEqual(normalizeCountry('KOR'), 'KOR - Korea (South)');
+  assert.strictEqual(normalizeCountry('TW'), 'TWN - Taiwan');
+  assert.strictEqual(normalizeCountry('NI'), 'NGA - Nigeria');
 });
 
 test('parsePoliceReport throws on invalid XML missing POLICE_REPORT2', () => {

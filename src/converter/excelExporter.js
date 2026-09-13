@@ -10,6 +10,7 @@ try {
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
+const { normalizeForeignCountry } = require('./countryMap');
 
 async function exportToExcel({
   vnGuests = [],
@@ -104,7 +105,8 @@ async function exportToExcel({
     row.getCell(3).value = g.dob || '';
     row.getCell(4).value = 'D - Ngày';
     row.getCell(5).value = g.gender || 'M - Nam';
-    row.getCell(6).value = g.nationalityCode || 'CHN - China';
+    const rawNat = g.nationalityCode || g.nationality || '';
+    row.getCell(6).value = normalizeForeignCountry(rawNat) || 'CHN - China';
     row.getCell(7).value = g.idNumber || '';
     row.getCell(8).value = g.room || '';
     row.getCell(9).value = g.arrival || '';

@@ -109,10 +109,11 @@ function normalizeGender(g) {
   return val;
 }
 
+const { normalizeForeignCountry } = require('./countryMap');
+
 function normalizeCountry(codeOrName) {
   if (!codeOrName) return '';
-  const key = String(codeOrName).trim().toUpperCase();
-  return COUNTRY_LOOKUP_MAP[key] || codeOrName;
+  return normalizeForeignCountry(codeOrName);
 }
 
 function parsePoliceReport(xmlContent) {

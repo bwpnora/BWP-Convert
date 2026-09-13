@@ -115,3 +115,47 @@ test('exportToExcel fills Col 11, 12, 13, and Col 19 GHI CHU with original addre
   fs.rmSync(outDir, { recursive: true, force: true });
 });
 
+test('exportToExcel normalizes foreign guest country to Lookup format and preserves VN guest format', async () => {
+  const outDir = path.resolve(__dirname, '../dist/test-country-norm');
+  const sampleVnGuests = [{
+    name: 'NGUYEN VAN A',
+    nationalityCode: 'VNM - Viet Nam'
+  }];
+  const sampleForeignGuests = [
+    {
+      name: 'LIU HSING TUNG',
+      nationalityCode: 'TW'
+    },
+    {
+      name: 'ACHIKE DOMINIQUE CHUKWUDI',
+      nationalityCode: 'NI'
+    },
+    {
+      name: 'HANS SCHMIDT',
+      nationalityCode: 'DE'
+    }
+  ];
+
+  const result = await exportToExcel({
+    vnGuests: sampleVnGuests,
+    foreignGuests: sampleForeignGuests,
+    vnTemplatePath: 'brief/tblt_vn_import.xlsx',
+    foreignTemplatePath: 'brief/dklt nc ngoài.xlsx',
+    outputDir: outDir,
+    timestamp: '20260913888888'
+  });
+
+  const wbFg = new ExcelJS.Workbook();
+  await wbFg.xlsx.readFile(result.foreignFilePath);
+  const wsFg = wbFg.getWorksheet('KBTT');
+  assert.strictEqual(wsFg.getCell('F3').value, 'TWN - Taiwan');
+  assert.strictEqual(wsFg.getCell('F4').value, 'NGA - Nigeria');
+  assert.strictEqual(wsFg.getCell('F5').value, 'D - Germany');
+
+  const wbVn = new ExcelJS.Workbook();
+  await wbVn.xlsx.readFile(result.vnFilePath);
+  const wsVn = wbVn.getWorksheet('DS_KHACH_VIET_NAM_LUU_TRU');
+  assert.strictEqual(wsVn.getCell('E5').value, 'VNM - Viet Nam');
+
+  fs.rmSync(outDir, { recursive: true, force: true });
+});
