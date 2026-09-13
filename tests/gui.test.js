@@ -81,12 +81,12 @@ test('HTML template, styles, and app logic contain address preview section', () 
   assert.ok(js.includes('renderAddressPreview'), 'app.js must implement renderAddressPreview');
 });
 
-test('application metadata reflects version 1.1.0 and logo branding', () => {
+test('application metadata reflects version 1.1.1 and logo branding', () => {
   const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
-  assert.strictEqual(pkg.version, '1.1.0', 'package.json version must be 1.1.0');
+  assert.strictEqual(pkg.version, '1.1.1', 'package.json version must be 1.1.1');
 
   const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
-  assert.ok(html.includes('v1.1.0'), 'index.html must display v1.1.0 badge');
+  assert.ok(html.includes('v1.1.1'), 'index.html must display v1.1.1 badge');
   assert.ok(html.includes('src/images/logo.png') || html.includes('../images/logo.png'), 'index.html must reference logo.png');
   assert.ok(fs.existsSync(path.resolve('src/images/logo.png')), 'src/images/logo.png must exist');
 });
