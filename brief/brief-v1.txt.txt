@@ -1,0 +1,5 @@
+Đây là brief đầu tiên. 
+- Tôi muốn convert file police_report2_75766981.xml (đây là file mẫu), nó sẽ được convert sang 2 file excel là tblt_vn_import.xlsx và dklt nc ngoài.xlsx có trong folder brief.
+- Hãy nghiên cứu công nghệ phù hợp, nhẹ, chạy mượt, không cần giao diện phức tạp kéo file .xml vào ấn nút convert, gửi file ra.
+- Đọc kĩ 2 file excel phân tích thật kĩ và đưa ra hướng giải quyết.
+- Các cột, các file được đưa ra 1 cách hợp lý, và đúng theo giao diện file excel mẫu.

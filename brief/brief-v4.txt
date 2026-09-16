@@ -1,0 +1,7 @@
+- Most features are currently working well; now update the UI/UX accordingly.
+- All converted files must be saved to the PC's Documents folder. Create a dedicated folder for this software inside Documents.
+- For opening files/locations, design and place intuitive buttons for both "Open File" and "Open Containing Folder".
+- Background processing causes the app to become "Not Responding" when clicking away or switching windows—investigate and fix this issue (e.g., run tasks on a background thread).
+- Optimize the user interface. Add a notification toast/alert at the bottom-right corner that appears upon conversion completion, stays visible for 5 seconds, and automatically dismisses itself.
+- Update the app version to 1.1.0 and replace the existing logo with src/images/logo.png.
+- Fix the error that occurs when drag-and-dropping files into the application (refer to the attached screenshot).

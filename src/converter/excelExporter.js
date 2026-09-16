@@ -90,15 +90,15 @@ async function exportToExcel({
   const wsFg = wbFg.getWorksheet('KBTT');
 
   const totalFgRows = wsFg.rowCount;
-  for (let r = 3; r <= totalFgRows; r++) {
+  for (let r = 4; r <= totalFgRows; r++) {
     wsFg.getRow(r).values = [];
   }
-  if (wsFg._rows && wsFg._rows.length > 2) {
-    wsFg._rows.length = 2;
+  if (wsFg._rows && wsFg._rows.length > 3) {
+    wsFg._rows.length = 3;
   }
 
   foreignGuests.forEach((g, idx) => {
-    const rowNum = 3 + idx;
+    const rowNum = 4 + idx;
     const row = wsFg.getRow(rowNum);
     row.getCell(1).value = idx + 1;
     row.getCell(2).value = g.name || '';
@@ -127,7 +127,7 @@ async function exportToExcel({
   });
 
   // Fix Table1 AutoFilter and range so Excel opens cleanly without repair dialog
-  const lastFgRow = Math.max(3, 2 + foreignGuests.length);
+  const lastFgRow = Math.max(3, 3 + foreignGuests.length);
   const fgTableRef = `A2:L${lastFgRow}`;
   const tables = wsFg.getTables();
   for (const t of tables) {

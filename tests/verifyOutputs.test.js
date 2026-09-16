@@ -90,12 +90,16 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
 
   const wsFg = wbFg.getWorksheet('KBTT');
 
-  // Assert data rows start at row 3 and end at row 14 (total 12 rows)
+  // Assert Row 3 contains the sample row
+  assert.strictEqual(wsFg.getCell('B3').value, '[TEST] SAMPLE');
+  assert.strictEqual(wsFg.getCell('F3').value, 'VNM - Viet Nam');
+
+  // Assert data rows start at row 4 and end at row 15 (total 12 rows)
   let fgRowCount = 0;
   const slashDateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
   const observedCountries = new Set();
 
-  for (let r = 3; r <= 14; r++) {
+  for (let r = 4; r <= 15; r++) {
     const row = wsFg.getRow(r);
     const stt = row.getCell(1).value;
     const name = String(row.getCell(2).value || '');
@@ -103,7 +107,7 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
     const arrival = String(row.getCell(9).value || '');
     const departure = String(row.getCell(10).value || '');
 
-    assert.strictEqual(stt, r - 2, `Row ${r} STT must be ${r - 2}`);
+    assert.strictEqual(stt, r - 3, `Row ${r} STT must be ${r - 3}`);
     assert.ok(name.length > 0, `Row ${r} must have guest name`);
     // Col 2 (name has no commas and is not italic)
     assert.ok(!row.getCell(2).font?.italic, `Row ${r} name must not be italic`);
@@ -126,9 +130,9 @@ test('end-to-end output validation for VN and Foreign Excel files', async () => 
   // Verify Table1 ref is synchronized
   const fgTables = wsFg.getTables();
   assert.ok(fgTables.length > 0, 'Foreign sheet must have Table1');
-  assert.strictEqual(fgTables[0].table.tableRef, 'A2:L14', 'Table1 ref must be A2:L14');
+  assert.strictEqual(fgTables[0].table.tableRef, 'A2:L15', 'Table1 ref must be A2:L15');
 
-  // Verify row 15 has no guest data
-  const row15 = wsFg.getRow(15);
-  assert.ok(!row15.getCell(2).value, 'Row 15 should not contain guest data');
+  // Verify row 16 has no guest data
+  const row16 = wsFg.getRow(16);
+  assert.ok(!row16.getCell(2).value, 'Row 16 should not contain guest data');
 });

@@ -1,0 +1,1 @@
+Ở phần địa chỉ vẫn chưa tối ưu lắm, hiện tại ở Việt Nam bây giờ có 2 địa chỉ cũ và mới, đồng thời các tỉnh thành đã được thay đổi từ 63 -> 34, đồng thời ở hồ chí minh và một số tỉnh thành sẽ thay đổi quận -> phường, xã khá nhiều, nghiên cứu giúp tôi việc chuyển đổi tự động từ địa chỉ 1 cách hợp lý, nếu được có thể làm 2 cột địa chỉ mới và cũ

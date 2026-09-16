@@ -4,3 +4,4 @@ output/
 .gemini/
 *.log
 .superpowers/
+brief/*_2026*.xlsx

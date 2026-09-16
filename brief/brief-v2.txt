@@ -1,0 +1,1 @@
+- Tôi đã kết nối vào GitHub của tôi, bây giờ tôi muốn tạo Release tự động, file cài đặt tự động, tạo file install để tôi có thể cài đặt vào các máy khác, nghiên cứu và cho phương án

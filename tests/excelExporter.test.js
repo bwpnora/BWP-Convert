@@ -70,10 +70,15 @@ test('exportToExcel creates both files preserving template sheets and correct ro
   assert.ok(wbFg.getWorksheet('Lookup'), 'Lookup sheet must be preserved');
 
   const wsFg = wbFg.getWorksheet('KBTT');
-  assert.strictEqual(wsFg.getCell('A3').value, 1);
-  assert.strictEqual(wsFg.getCell('B3').value, 'JOHN DOE');
-  assert.strictEqual(wsFg.getCell('F3').value, 'USA - United States of America');
-  assert.ok(!wsFg.getCell('B3').font?.italic, 'Foreign guest name must not be italic');
+  // Row 3 must be preserved as the sample row
+  assert.strictEqual(wsFg.getCell('B3').value, '[TEST] SAMPLE');
+  assert.strictEqual(wsFg.getCell('F3').value, 'VNM - Viet Nam');
+
+  // Converted foreign guests start at row 4
+  assert.strictEqual(wsFg.getCell('A4').value, 1);
+  assert.strictEqual(wsFg.getCell('B4').value, 'JOHN DOE');
+  assert.strictEqual(wsFg.getCell('F4').value, 'USA - United States of America');
+  assert.ok(!wsFg.getCell('B4').font?.italic, 'Foreign guest name must not be italic');
 });
 
 test('exportToExcel fills Col 11, 12, 13, and Col 19 GHI CHU with original address', async () => {
@@ -148,9 +153,9 @@ test('exportToExcel normalizes foreign guest country to Lookup format and preser
   const wbFg = new ExcelJS.Workbook();
   await wbFg.xlsx.readFile(result.foreignFilePath);
   const wsFg = wbFg.getWorksheet('KBTT');
-  assert.strictEqual(wsFg.getCell('F3').value, 'TWN - Taiwan');
-  assert.strictEqual(wsFg.getCell('F4').value, 'NGA - Nigeria');
-  assert.strictEqual(wsFg.getCell('F5').value, 'D - Germany');
+  assert.strictEqual(wsFg.getCell('F4').value, 'TWN - Taiwan');
+  assert.strictEqual(wsFg.getCell('F5').value, 'NGA - Nigeria');
+  assert.strictEqual(wsFg.getCell('F6').value, 'D - Germany');
 
   const wbVn = new ExcelJS.Workbook();
   await wbVn.xlsx.readFile(result.vnFilePath);
